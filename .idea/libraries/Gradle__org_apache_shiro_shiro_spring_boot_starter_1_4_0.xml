@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.shiro:shiro-spring-boot-starter:1.4.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.apache.shiro/shiro-spring-boot-starter/1.4.0/8f6fd6adef519cab7022a41b47a66ea0acba4569/shiro-spring-boot-starter-1.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.apache.shiro/shiro-spring-boot-starter/1.4.0/70d73441430a08880452e73b86912881c0597a6/shiro-spring-boot-starter-1.4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

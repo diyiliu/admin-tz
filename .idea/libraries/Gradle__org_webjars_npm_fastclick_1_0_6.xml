@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.webjars.npm:fastclick:1.0.6">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/fastclick/1.0.6/a293a28e7a4571e12bb405f09c7ea393ac47759/fastclick-1.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/fastclick/1.0.6/b04f3ee8f5e43fa3b162981b50bb72fe1acabb33/fastclick-1.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

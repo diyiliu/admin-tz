@@ -1,0 +1,52 @@
+# https://docs.spring.io/spring-boot/docs/2.0.0.RELEASE/reference/htmlsingle/#common-application-properties
+server:
+  tomcat:
+    basedir: ${user.dir}/temp
+
+# SPRING
+spring:
+  profiles:
+    active: dev
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  mvc:
+    static-path-pattern: '/assets/**'
+  resources:
+    static-locations: 'classpath:/assets/'
+
+  # ehcache
+  cache:
+    ehcache:
+      config: 'classpath:/config/ehcache.xml'
+
+  #json
+  jackson:
+    locale: zh_CN
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+# LOGGING
+logging:
+  config: 'classpath:logback.xml'
+
+# 文件上传
+upload:
+  user: file:./upload/user/
+
+# shiro
+shiro:
+  login-url: '/login'
+  success-url: '/'
+  hash-algorithm: MD5
+  hash-iterations: 2
+  username-param: username
+  password-param: password
+  remember-me-param: rememberMe
+  filter-chain:
+    authc: /login,/authenticated
+    anon: /logout,/unauthorized,/webjars/**,/assets/**,/image/**
+    user: /**

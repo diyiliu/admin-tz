@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html dir="ltr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+    <link th:href="@{/assets/libs/cropperjs/cropper.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/profile.css}" rel="stylesheet">
+</head>
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">个人资料</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <!-- Row -->
+    <div class="row">
+        <!-- Column -->
+        <div class="col-lg-4 col-xlg-3 col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="m-t-30 text-center">
+                        <label class="label" style="cursor: pointer">
+                            <img th:src="@{/image/user/{img}(img = ${#strings.isEmpty(user.userIcon)? '0.png': user.userIcon})}"
+                                 id="image" class="rounded-circle" width="150"/>
+                            <input type="file" class="sr-only" id="file" accept="image/*">
+                        </label>
+                        <h4 class="card-title m-t-10" th:text="${user.username}">Hanna Gover</h4>
+                        <h6 class="card-subtitle">Activity &nbsp;&nbsp;&nbsp;&nbsp; Fans</h6>
+                        <div class="row text-center justify-content-md-center">
+                            <div class="col-4">
+                                <a href="javascript:void(0)" class="link">
+                                    <i class="icon-people"></i> <span class="font-medium" th:text="${user.loginCount}">254</span>
+                                </a>
+                            </div>
+                            <div class="col-4">
+                                <a href="javascript:void(0)" class="link">
+                                    <i class="icon-picture"></i> <span class="font-medium" th:text="${user.loginCount / 5}">54</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <hr>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">Email address</small>
+                    <h6 th:text="${user.email}">hannagover@gmail.com</h6>
+                    <small class="text-muted p-t-30 db">Phone</small>
+                    <h6 th:text="${user.tel}">+91 654 784 547</h6>
+                    <button class="btn btn-circle btn-secondary"><i class="mdi mdi-qqchat"></i></button>
+                    <button class="btn btn-circle btn-secondary"><i class="mdi mdi-wechat"></i></button>
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+        <!-- Column -->
+        <div class="col-lg-8 col-xlg-9 col-md-7">
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-horizontal form-material" id="profileFm" th:object="${user}">
+                        <input type="hidden" id="id" th:field="${user.id}">
+                        <div class="form-group">
+                            <label for="name" class="col-md-12">姓名</label>
+                            <div class="col-md-12">
+                                <input type="text" readonly placeholder="姓名" class="form-control form-control-line" id="name"
+                                       th:field="${user.name}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="col-md-12">邮箱</label>
+                            <div class="col-md-12">
+                                <input type="email" placeholder="邮箱" class="form-control form-control-line"
+                                       id="email" th:field="${user.email}" th:errorclass="is-invalid">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tel" class="col-md-12">电话</label>
+                            <div class="col-md-12">
+                                <input type="text" placeholder="电话" class="form-control form-control-line"
+                                       id="tel" th:field="${user.tel}" th:errorclass="is-invalid">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-12">备注</label>
+                            <div class="col-md-12">
+                                <textarea rows="5" class="form-control form-control-line"
+                                          th:field="${user.note}" th:text="${user.note}"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <button class="btn btn-success" id="update">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+    </div>
+    <!-- Row -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">修改头像</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="img-container">
+                                <img src="https://avatars0.githubusercontent.com/u/3456749">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="docs-preview">
+                                <div class="img-preview preview-md"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="crop">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="allJs">
+    <script th:src="@{/webjars/bootstrap/4.1.0/dist/js/bootstrap.bundle.js}"></script>
+    <script th:src="@{/assets/libs/cropperjs/cropper.js}"></script>
+    <script th:inline="javascript">
+        $(function () {
+            $('#update').on('click', function () {
+                var param = $('#profileFm').serialize();
+                $.ajax({
+                    type: 'put',
+                    url: /*[[@{/sys/user}]]*/,
+                    data: param,
+                    dataType: "json",
+                    success: function (result) {
+                        if (result == 1) {
+                            alertTip('success', '保存成功');
+                        } else {
+                            alertTip('error', '保存失败');
+                        }
+                    },
+                    error: function (result) {
+                        console.log(result);
+                        alertTip('error', '保存失败');
+                    }
+                });
+            });
+
+            var container = document.querySelector('.img-container');
+            var image = container.getElementsByTagName('img').item(0);
+            var $modal = $('#modal');
+            var cropper;
+            $modal.on('shown.bs.modal', function () {
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 3,
+                    preview: '.img-preview'
+                });
+            }).on('hidden.bs.modal', function () {
+                $('#file').val('');
+                cropper.destroy();
+                cropper = null;
+            });
+
+            $('#file').on('change', function () {
+                var done = function (url) {
+                    image.src = url;
+                    $modal.modal('show');
+                };
+
+                var files = this.files;
+                if (files && files.length) {
+                    var file = files[0];
+                    if (file.size > 2 * 1024 * 1024){
+                        swal("图片大小不能超过 2MB!", "支持 JPG、GIF、PNG 格式的图片文件，且文件大小小于 1MB", "warning");
+                        return;
+                    }
+
+                    if (URL) {
+                        done(URL.createObjectURL(file));
+                    } else if (FileReader) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            done(reader.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+
+            var $progress = $('.progress');
+            var $progressBar = $('.progress-bar');
+            $('#crop').on('click', function () {
+                var file = document.getElementById('file').files[0];
+                if (file) {
+                    $progress.show();
+
+                    var data = cropper.getData();
+                    data.name = file.name;
+                    data.type = file.type;
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('data', JSON.stringify(data));
+
+                    var path = /*[[@{/image/user/}]]*/;
+                    $.ajax({
+                        type: 'post',
+                        url: path,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        xhr: function () {
+                            var xhr = new XMLHttpRequest();
+                            xhr.upload.onprogress = function (e) {
+                                var percent = '0';
+                                var percentage = '0%';
+
+                                if (e.lengthComputable) {
+                                    percent = Math.round((e.loaded / e.total) * 100);
+                                    percentage = percent + '%';
+                                    $progressBar.width(percentage).attr('aria-valuenow', percent).text(percentage);
+                                }
+                            };
+
+                            return xhr;
+                        },
+                        success: function (result) {
+                            if (result.status == 1) {
+                                alertTip('success', '保存成功');
+                                $modal.modal('hide');
+                                document.getElementById('image').src = path + result.path;
+                                document.getElementById('userIcon').src = path + result.path;
+                            } else {
+                                alertTip('error', '保存失败');
+                            }
+                        },
+                        error: function () {
+                            alertTip('error', '保存失败');
+                        },
+                        complete: function () {
+                            $progress.hide();
+                        }
+                    });
+                } else {
+                    window.alert('Please choose an image file.');
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

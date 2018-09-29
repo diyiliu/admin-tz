@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">用户管理</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="#">Sys</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">User</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-success" id="addItem" data-title="新增用户">
+                            <i class="fa fa-fw fa-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-cyan" id="editItem" data-title="修改用户">
+                            <i class="fa fa-fw fa-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger" id="delItem" th:attr="data-url=@{/sys/user}">
+                            <i class="fa fa-fw fa-trash-o"></i>
+                        </button>
+                    </div>
+                    <table id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加用户</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form" id="userForm">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="username" class="col-sm-2 control-label text-right col-form-label">登录名</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="username" name="username" placeholder="登录名">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 control-label text-right col-form-label">用户名</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tel" class="col-sm-2 control-label text-right col-form-label">电话</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tel" name="tel" placeholder="电话">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2 control-label text-right col-form-label">邮箱</label>
+                            <div class="col-sm-10">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="邮箱">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="selRole" class="col-sm-2 control-label text-right col-form-label">角色</label>
+                            <div class="col-sm-10">
+                                <select id="selRole" name="roleId" data-placeholder="选择角色 ..."
+                                        class="form-control chosen-select">
+                                    <option value=""></option>
+                                    <option th:each="role:${#request.getAttribute('roles')}"
+                                            th:value="${role.id}" th:text="${role.name}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="expireTime" class="col-sm-2 control-label text-right col-form-label">过期时间</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="expireTime"
+                                       name="expireTimeStr" placeholder="过期时间">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveItem" th:attr="data-url=@{/sys/user}">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        $(function () {
+            var $table = $('#myTable');
+
+            DP.init({
+                addAfter: function () {
+                    $('#selRole').chosen("destroy");
+                    $('#selRole').chosen();
+
+                    $('#id').val('');
+                    document.getElementById('username').readOnly = false;
+
+                    // 设置默认过期时间
+                    var expire = new Date();
+                    expire.setFullYear(expire.getFullYear() + 1);
+                    expire.setDate(expire.getDate() - 1);
+                    laydate.render({
+                        elem: '#expireTime'
+                        , type: 'datetime'
+                        , value: expire
+                    });
+                },
+                editAfter: function (i) {
+                    var user = $table.bootstrapTable('getRowByUniqueId', i);
+                    // 重置表单
+                    $('#selRole').chosen("destroy");
+                    $('#id').val(user['id']);
+                    $('#username').val(user['username']);
+                    $('#name').val(user['name']);
+                    $('#tel').val(user['tel']);
+                    $('#email').val(user['email']);
+                    document.getElementById('username').readOnly = true;
+
+                    var role = user['roles'][0];
+                    if (role) {
+                        var roleId = role.id;
+                        var options = document.getElementById('selRole').options;
+                        for (var i = 0; i < options.length; i++) {
+                            var o = options[i];
+                            if (o.value == roleId) {
+                                o.selected = true;
+                            }
+                        }
+                    }
+                    $('#selRole').chosen();
+                    laydate.render({
+                        elem: '#expireTime'
+                        , type: 'datetime'
+                        , value: user['expireTime']
+                    });
+                }
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                striped: true,
+                height: tableHeight,
+                url: /*[[@{/sys/userList}]]*/,
+                columns: [
+                    {
+                        field: '',
+                        checkbox: true
+                    },
+                    {
+                        field: 'username',
+                        title: '登录名'
+                    },
+                    {
+                        field: 'name',
+                        title: '姓名'
+                    },
+                    {
+                        field: 'roles',
+                        title: '角色',
+                        formatter: function (value, row, index) {
+                            if (value.length > 0) {
+                                return value[0]['name'];
+                            }
+
+                            return '';
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '机构'
+                    },
+                    {
+                        field: 'tel',
+                        title: '手机'
+                    },
+                    {
+                        field: 'lastLoginTime',
+                        title: '登录时间'
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            if (value) {
+                                str = value.substr(0, 10);
+                            }
+
+                            return '<span style="cursor: default" title="' + value + '">' + str + '</span>';
+                        }
+                    },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            if (1 == value) {
+                                return '<i class="font-20 mdi mdi-account-check text-success"></i>';
+                            }
+
+                            return '<i class="font-20 mdi mdi-account-alert text-danger">';
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '重置密码',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            return '<a href="javascript:void(0);" onclick="resetPwd(this);" data-id="' + row.id + '" title="重置密码"><i class="font-20 mdi mdi-lock text-warning"></i></a>';
+                        }
+                    }
+                ]
+            });
+        });
+
+        function resetPwd(a) {
+            var id = $(a).data('id');
+            // 提示
+            swal({
+                    title: "重置用户密码?",
+                    text: "重置后原密码将无法使用",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#e67e22",
+                    confirmButtonText: "重置",
+                    closeOnConfirm: true
+                },
+                function () {
+                    var path = /*[[@{/sys/userPwd/}]]*/;
+                    $.ajax({
+                        type: 'put',
+                        url: path + id,
+                        dataType: "json",
+                        success: function (result) {
+                            if (result == 1) {
+                                alertTip('success', '重置密码成功');
+                            } else {
+                                alertTip('error', '重置密码失败');
+                            }
+                        }
+                    });
+                });
+        };
+    </script>
+</div>
+</body>
+</html>

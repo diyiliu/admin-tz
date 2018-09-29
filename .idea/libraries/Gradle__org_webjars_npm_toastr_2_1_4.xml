@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.webjars.npm:toastr:2.1.4">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/toastr/2.1.4/861204a39220d287b620f875e815f4e4259fb0a/toastr-2.1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/toastr/2.1.4/b04f3ee8f5e43fa3b162981b50bb72fe1acabb33/toastr-2.1.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

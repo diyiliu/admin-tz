@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.webjars.npm:font-awesome:4.3.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/font-awesome/4.3.0/ec5641a1a6801822b0410312c469e38e0da341ce/font-awesome-4.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.webjars.npm/font-awesome/4.3.0/b04f3ee8f5e43fa3b162981b50bb72fe1acabb33/font-awesome-4.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

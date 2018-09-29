@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+    <link th:href="@{/assets/libs/treeview/dhtmlxtreeview.css}" type="text/css" rel="stylesheet">
+</head>
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">角色管理</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="#">Sys</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Role</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-success" id="addItem" data-title="新增角色">
+                            <i class="fa fa-fw fa-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-cyan" id="editItem" data-title="修改角色">
+                            <i class="fa fa-fw fa-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger" id="delItem" th:attr="data-url=@{/sys/role}">
+                            <i class="fa fa-fw fa-trash-o"></i>
+                        </button>
+                    </div>
+                    <table id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        添加角色
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 control-label text-right col-form-label">角色名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="角色名称">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="code" class="col-sm-2 control-label text-right col-form-label">角色代码</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="code" name="code" placeholder="角色代码">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="comment" class="col-sm-2 control-label text-right col-form-label">角色描述</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="comment" id="comment" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveItem"
+                            th:attr="data-url=@{/sys/role}">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <div id="menuModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        授权角色
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div id="menuTree" class="modal-tree"></div>
+                    <input type="hidden" name="roleId" id="roleId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveMenu">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:src="@{/assets/libs/treeview/dhtmlxtreeview.min.js}"></script>
+    <script th:inline="javascript">
+        $(function () {
+            var $table = $('#myTable');
+            DP.init({
+                addBefore: function(){
+                    $('#id').val('');
+                },
+                editBefore: function (i) {
+                    var role = $table.bootstrapTable('getRowByUniqueId', i);
+
+                    $('#id').val(role['id']);
+                    $('#name').val(role['name']);
+                    $('#code').val(role['code']);
+                    $('#comment').val(role['comment']);
+                }
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                striped: true,
+                height: tableHeight,
+                url: /*[[@{/sys/roleList}]]*/,
+                columns: [
+                    {
+                        field: 'ck',
+                        checkbox: true
+                    },
+                    {
+                        field: 'name',
+                        title: '角色名称'
+                    },
+                    {
+                        field: 'code',
+                        title: '角色代码',
+                        align: 'center',
+                    },
+                    {
+                        field: 'comment',
+                        title: '角色描述'
+                    },
+                    {
+                        field: 'createUser',
+                        title: '创建人'
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        align: 'center',
+                    },
+                    {
+                        field: '',
+                        title: '授权',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            return '<a href="#menuModal" data-toggle="modal" data-id="' + row.id + '"><i class="font-20 mdi mdi-wrench text-warning"></i></a>';
+                        }
+                    }
+                ]
+            });
+
+            var myTreeView;
+            $('#menuModal').on('show.bs.modal', function (event) {
+                var aObj = $(event.relatedTarget);
+                var roleId = aObj.data('id');
+                $('#roleId').val(roleId);
+
+                var path = /*[[@{/sys/assetTree/}]]*/;
+                myTreeView = new dhtmlXTreeView({
+                    parent: "menuTree",
+                    checkboxes: true,
+                    json: path + roleId,
+                });
+            });
+
+            $('#saveMenu').on('click', function () {
+                var roleId = $('#roleId').val();
+                var assetArr = myTreeView.getAllChecked();
+
+                var dataArr = [];
+                for (var i = 0; i < assetArr.length; i++){
+                    var id = assetArr[i];
+
+                    var obj = {};
+                    obj.master = 'role';
+                    obj.masterValue = roleId;
+                    obj.accessValue = id;
+                    obj.access = myTreeView.getUserData(id, 'access');
+                    obj.permission = myTreeView.getUserData(id, 'permission');
+
+                    dataArr[i] = obj;
+                }
+
+                var path = /*[[@{/sys/roleAsset/}]]*/;
+                $.ajax({
+                    type: "post",
+                    url: path + roleId,
+                    contentType:"application/json;charset=utf-8",
+                    data: JSON.stringify(dataArr),
+                    dataType: "json",
+                    success: function (res) {
+                        if (res == 1) {
+                            $('#menuModal').modal('hide');
+                            $('#roleTable').bootstrapTable('refresh');
+
+                            alertTip('success', '保存成功');
+                        } else {
+                            alertTip('error', '保存失败');
+                        }
+                    },
+                    error: function (res) {
+                        alertTip('error', '服务器异常:' + res.status +'! ');
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

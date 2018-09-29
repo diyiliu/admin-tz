@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="diyiliu">
+    <link th:href="@{/assets/images/favicon.png}" rel="icon" type="image/png">
+
+    <title>Admin 500</title>
+    <!-- Custom CSS -->
+    <link th:href="@{/assets/css/style.min.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <!-- ============================================================== -->
+        <!-- Preloader - style you can find in spinners.css -->
+        <!-- ============================================================== -->
+        <div class="preloader">
+            <div class="lds-ripple">
+                <div class="lds-pos"></div>
+                <div class="lds-pos"></div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- Preloader - style you can find in spinners.css -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Login box.scss -->
+        <!-- ============================================================== -->
+        <div class="error-box">
+            <div class="error-body text-center">
+                <h1 class="error-title text-danger">500</h1>
+                <h3 class="text-uppercase error-subtitle">SERVER ERROR !</h3>
+                <p class="text-muted m-t-30 m-b-30">YOU SEEM TO BE TRYING TO FIND HIS WAY HOME</p>
+                <a th:href="@{/}" class="btn btn-danger btn-rounded waves-effect waves-light m-b-40">Back to home</a> </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- Login box.scss -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Page wrapper scss in scafholding.scss -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Page wrapper scss in scafholding.scss -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Right Sidebar -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Right Sidebar -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- All Required js -->
+    <!-- ============================================================== -->
+    <script th:src="@{/webjars/jquery/3.3.1/dist/jquery.min.js}"></script>
+    <script th:src="@{/assets/libs/popper/umd/popper.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.1.0/dist/js/bootstrap.js}"></script>
+    <!-- ============================================================== -->
+    <!-- This page plugin js -->
+    <!-- ============================================================== -->
+    <script>
+    $('[data-toggle="tooltip"]').tooltip();
+    $(".preloader").fadeOut();
+    </script>
+</body>
+
+</html>

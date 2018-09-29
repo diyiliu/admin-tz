@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link th:href="@{/assets/images/favicon.png}" rel="icon" type="image/png">
+        <title>Home Page</title>
+
+        <link th:href="@{/webjars/font-awesome/4.3.0/css/font-awesome.min.css}" rel="stylesheet"/>
+        <link th:href="@{/webjars/bootstrap/4.1.0/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+        <link th:href="@{/webjars/toastr/2.1.4/build/toastr.min.css}" rel="stylesheet"/>
+
+        <!-- local styles -->
+        <link th:href="@{/assets/libs/bootstrap-table/bootstrap-table.css}"  rel="stylesheet">
+        <link th:href="@{/assets/libs/completer/completer.min.css}" rel="stylesheet">
+        <link th:href="@{/assets/libs/sweetalert/sweetalert.css}" rel="stylesheet">
+        <link th:href="@{/assets/libs/chosen/chosen.css}" rel="stylesheet">
+        <link th:href="@{/assets/libs/tagsinput/jquery.tagsinput.css}" rel="stylesheet">
+        <link th:href="@{/assets/libs/fake-loader/fakeLoader.css}" rel="stylesheet">
+        <link th:href="@{/assets/css/style.css}" rel="stylesheet">
+        <link th:href="@{/assets/css/dylmin.css}" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="preloader">
+            <div class="lds-ripple">
+                <div class="lds-pos"></div>
+                <div class="lds-pos"></div>
+            </div>
+        </div>
+        <div class="fakeloader">
+            <div class="fl spinner2">
+                <div class="spinner-container container1">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+                <div class="spinner-container container2">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+                <div class="spinner-container container3">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-wrapper" data-navbarbg="skin6" data-theme="light" data-layout="vertical" data-sidebartype="full"
+             data-boxed-layout="full">
+            <!-- ============================================================== -->
+            <!-- Topbar header - style you can find in pages.scss -->
+            <!-- ============================================================== -->
+            <header class="topbar" data-navbarbg="skin6">
+                <nav class="navbar top-navbar navbar-expand-md navbar-light">
+                    <div class="navbar-header" data-logobg="skin5">
+                        <!-- This is for the sidebar toggle which is visible on mobile only -->
+                        <a id="cm-mobile" class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)">
+                            <i class="ti-menu ti-close"></i>
+                        </a>
+                        <!-- ============================================================== -->
+                        <!-- Logo -->
+                        <!-- ============================================================== -->
+                        <div class="navbar-brand">
+                            <a th:href="@{/}" class="logo">
+                                <!-- Logo icon -->
+                                <b class="logo-icon">
+                                    <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
+                                    <!-- Dark Logo icon -->
+                                    <img th:src="@{/assets/images/logo-icon.png}" alt="homepage" class="dark-logo"/>
+                                    <!-- Light Logo icon -->
+                                    <img th:src="@{/assets/images/logo-light-icon.png}" alt="homepage"
+                                         class="light-logo"/>
+                                </b>
+                                <!--End Logo icon -->
+                                <!-- Logo text -->
+                                <span class="logo-text">
+                                    <!-- dark Logo text -->
+                                    <img th:src="@{/assets/images/logo-text.png}" alt="homepage" class="dark-logo"/>
+                                    <!-- Light Logo text -->
+                                    <img th:src="@{/assets/images/logo-light-text1.png}" class="light-logo"
+                                         alt="homepage"/>
+                                </span>
+                            </a>
+                            <a class="sidebartoggler waves-effect waves-light hidden-xs" href="javascript:void(0)"
+                               data-toggle="cm-menu">
+                                <i class="mdi mdi-menu font-20"></i>
+                            </a>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- End Logo -->
+                        <!-- ============================================================== -->
+                        <!-- ============================================================== -->
+                        <!-- Toggle which is visible on mobile only -->
+                        <!-- ============================================================== -->
+                        <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+                           data-toggle="collapse" data-target="#navbarSupportedContent"
+                           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="ti-more"></i>
+                        </a>
+                    </div>
+                    <!-- ============================================================== -->
+                    <!-- End Logo -->
+                    <!-- ============================================================== -->
+                    <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin6">
+                        <!-- ============================================================== -->
+                        <!-- toggle and nav items -->
+                        <!-- ============================================================== -->
+                        <ul class="navbar-nav float-left mr-auto">
+                            <!-- ============================================================== -->
+                            <!-- Search -->
+                            <!-- ============================================================== -->
+                            <li class="nav-item search-box">
+                                <a class="nav-link waves-effect waves-dark" href="javascript:void(0)">
+                                    <div class="d-flex align-items-center">
+                                        <i class="mdi mdi-magnify font-20 mr-1"></i>
+                                        <div class="ml-1 d-none d-sm-block">
+                                            <span>Search</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                <form class="app-search position-absolute">
+                                    <input type="text" class="form-control" placeholder="Search &amp; enter">
+                                    <a class="srh-btn">
+                                        <i class="ti-close"></i>
+                                    </a>
+                                </form>
+                            </li>
+                        </ul>
+                        <!-- ============================================================== -->
+                        <!-- Right side toggle and nav items -->
+                        <!-- ============================================================== -->
+                        <ul class="navbar-nav float-right">
+                            <!-- ============================================================== -->
+                            <!-- User profile and search -->
+                            <!-- ============================================================== -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img th:src="@{/image/user/{img}(img = ${#strings.isEmpty(session.user.userIcon)? '0.png': session.user.userIcon})}"
+                                        id="userIcon" alt="user" class="rounded-circle" width="31">
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right user-dd animated">
+                                    <a class="dropdown-item" th:href="@{/profile}">
+                                        <i class="ti-user"></i>
+                                        用户信息
+                                    </a>
+                                    <a class="dropdown-item" href="#pwdModal" data-toggle="modal">
+                                        <i class="ti-lock"></i>
+                                        修改密码
+                                    </a>
+                                    <a class="dropdown-item" th:href="@{/logout}">
+                                        <i class="ti-power-off"></i>
+                                        安全退出
+                                    </a>
+                                </div>
+                            </li>
+                            <!-- ============================================================== -->
+                            <!-- User profile and search -->
+                            <!-- ============================================================== -->
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            <!-- ============================================================== -->
+            <!-- Left Sidebar - style you can find in sidebar.scss  -->
+            <!-- ============================================================== -->
+            <aside class="left-sidebar" data-sidebarbg="skin5">
+                <!-- Sidebar scroll-->
+                <div class="scroll-sidebar cm-menu">
+                    <!-- Sidebar navigation-->
+                    <nav class="sidebar-nav">
+                        <ul id="sidebarnav">
+                            <li th:each="menu:${session.menus}" class="sidebar-item"
+                                th:classappend="${menu.getType().equals('node')? 'cm-submenu ': ''}">
+
+                                <a th:if="${menu.getType().equals('menu')}" class="sidebar-link waves-effect waves-dark"
+                                   th:classappend="${session.active != null && menu.getId() == session.active.id ? 'on': ''}"
+                                   th:href="@{/{url}(url = ${menu.getController()})}">
+                                    <i th:class="|mdi ${menu.getIconCss()}|"></i>
+                                    <span class="hide-menu" th:text="${menu.getName()}"></span>
+                                </a>
+
+                                <a th:if="${menu.getType().equals('node')}" class="sidebar-link  waves-effect waves-dark has-arrow"
+                                   th:classappend="${session.active != null && menu.getId() == session.active.pid ? 'on active': ''}"
+                                   href="javascript:void(0)" aria-expanded="false">
+                                    <i class="mdi" th:classappend="${menu.getIconCss()}"></i>
+                                    <span class="hide-menu" th:text="${menu.getName()}"></span>
+                                </a>
+
+                                <ul th:if="${menu.getType().equals('node')}" aria-expanded="false" class="collapse first-level"
+                                    th:classappend="${session.active != null && menu.getId() == session.active.pid ? ' in': ''}">
+                                    <li th:each="child:${menu.children}" class="sidebar-item" th:classappend="${session.active != null && child.getId() == session.active.id ? 'active': ''}">
+                                        <a th:href="@{/{url}(url = ${child.getController()})}" class="sidebar-link">
+                                            <i class="mdi mdi-checkbox-blank-circle-outline"></i>
+                                            <span class="hide-menu" th:text="${child.getName()}"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- End Sidebar navigation -->
+                </div>
+                <!-- End Sidebar scroll-->
+            </aside>
+            <!-- ============================================================== -->
+            <!-- Page wrapper  -->
+            <!-- ============================================================== -->
+            <div class="page-wrapper">
+                <!-- ============================================================== -->
+                <!-- Bread crumb and right sidebar toggle -->
+                <!-- ============================================================== -->
+                <div layout:fragment="breadcrumb"></div>
+                <!-- ============================================================== -->
+                <!-- Container fluid  -->
+                <!-- ============================================================== -->
+                <div layout:fragment="container"></div>
+                <!-- ============================================================== -->
+                <!-- footer -->
+                <!-- ============================================================== -->
+                <footer class="footer text-center">
+                    All Rights Reserved by DYL Admin. Designed and Developed by
+                    <a href="http://diyiliu.cc">DIYILIU</a>.
+                </footer>
+            </div>
+        </div>
+
+        <div id="pwdModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="userModalTitle">
+                            修改密码
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group row">
+                                <label for="oldPwd" class="col-sm-2 control-label text-right col-form-label">原密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="oldPwd" placeholder="原密码">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="newPwd" class="col-sm-2 control-label text-right col-form-label">新密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="newPwd" placeholder="新密码">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="newPwd2" class="col-sm-2 control-label text-right col-form-label">确认密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="newPwd2" placeholder="确认密码">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="savePwd">保存</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- All Jquery -->
+        <!-- ============================================================== -->
+        <script th:src="@{/webjars/jquery/3.3.1/dist/jquery.min.js}"></script>
+        <script th:src="@{/assets/libs/popper/umd/popper.min.js}"></script>
+        <script th:src="@{/webjars/jquery.cookie/1.4.1/jquery.cookie.js}"></script>
+        <script th:src="@{/webjars/fastclick/1.0.6/lib/fastclick.js}"></script>
+        <script th:src="@{/webjars/toastr/2.1.4/build/toastr.min.js}"></script>
+        <script th:src="@{/webjars/jquery-mousewheel/3.1.13/jquery.mousewheel.js}"></script>
+        <script th:src="@{/webjars/bootstrap/4.1.0/dist/js/bootstrap.js}"></script>
+
+        <script th:src="@{/assets/libs/bootstrap-table/bootstrap-table.js}"></script>
+        <script th:src="@{/assets/libs/bootstrap-table/bootstrap-table-locale-all.js}"></script>
+        <script th:src="@{/assets/libs/completer/completer.js}"></script>
+        <script th:src="@{/assets/libs/laydate/laydate.js}"></script>
+        <script th:src="@{/assets/libs/sweetalert/sweetalert.min.js}"></script>
+        <script th:src="@{/assets/libs/chosen/chosen.jquery.js}"></script>
+        <script th:src="@{/assets/libs/tagsinput/jquery.tagsinput.js}"></script>
+        <script th:src="@{/assets/libs/fake-loader/fakeLoader.js}"></script>
+
+        <script th:src="@{/assets/js/waves.js}"></script>
+        <script th:src="@{/assets/js/sidebarmenu.js}"></script>
+        <script th:src="@{/assets/js/custom.js}"></script>
+        <script th:src="@{/assets/js/dylmin.js}"></script>
+        <script th:src="@{/assets/js/dylplugin.js}"></script>
+        <!--This page JavaScript -->
+        <script th:inline="javascript">
+            $('#savePwd').on('click', function () {
+                var newPwd = $('#newPwd').val();
+                var newPwd2 = $('#newPwd2').val();
+                if (newPwd != newPwd2){
+                    swal("确认密码不一致!");
+                    return;
+                }
+
+                var oldPwd = $('#oldPwd').val();
+                var param = {
+                    "oldPwd": oldPwd,
+                    "newPwd": newPwd
+                };
+                $.ajax({
+                    type: 'put',
+                    url: /*[[@{/sys/userPwd}]]*/,
+                    data: param,
+                    dataType: "json",
+                    success: function (data) {
+                        var rs = data['result'];
+                        var msg = data['msg'];
+                        if (rs == 1) {
+                            $('#pwdModal').modal('hide');
+
+                            alertTip('success', msg);
+                        } else {
+                            alertTip('error', msg);
+                        }
+                    }
+                });
+            });
+        </script>
+        <div layout:fragment="allJs"></div>
+    </body>
+</html>

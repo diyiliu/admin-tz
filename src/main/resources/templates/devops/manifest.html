@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">程序清单</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">manifest</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-info" id="addMf" data-title="新增清单">
+                            <i class="fa fa-fw fa-plus"></i> 新增
+                        </button>
+                    </div>
+                    <table id="mfTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mfModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="os" class="col-sm-2 control-label  text-right col-form-label">系统</label>
+                            <div class="col-sm-10">
+                                <select name="os" id="os" class="form-control">
+                                    <option value="Windows">Windows</option>
+                                    <option value="Linux">Linux</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="netNo" class="col-sm-2 control-label text-right col-form-label">地址</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="netNo" name="netNo" placeholder="地址">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tag" class="col-sm-2 control-label text-right col-form-label">标签</label>
+                            <div class="col-sm-10">
+                                <div class="modal-tag">
+                                    <input type="text" class="tags" id="tag" name="tag" placeholder="编辑">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="note" class="col-sm-2 control-label text-right col-form-label">备注</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="note" id="note" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveMf"
+                            th:attr="data-url=@{/manifest/save}">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        $(function () {
+            var $table = $('#mfTable');
+
+            DP.init({
+                showMd: 'mfModal',
+                addBtn: 'addMf',
+                saveBtn: 'saveMf',
+                bsTable: 'mfTable',
+                addBefore: function () {
+                    $('#tag').importTags('');
+                    $('#id').val('');
+                },
+                editBefore: function (i) {
+                    var row = $table.bootstrapTable('getData')[i];
+
+                    // 下拉选中
+                    var options = document.getElementById('os').options;
+                    for (var i = 0; i < options.length; i++) {
+                        var o = options[i];
+                        if (o.value == row.os) {
+                            o.selected = true;
+                        }
+                    }
+
+                    $('#tag').importTags(row.tag);
+                    $('#id').val(row.id);
+                    $('#netNo').val(row.netNo);
+                    $('#note').val(row.note);
+                }
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                height: tableHeight,
+                classes: 'table table-no-bordered',
+                url: /*[[@{/manifest/list}]]*/,
+                columns: [
+                    {
+                        field: '',
+                        title: '序号',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+
+                            return index + 1;
+                        }
+                    },
+                    {
+                        field: 'os',
+                        title: '系统'
+                    },
+                    {
+                        field: 'netNo',
+                        title: 'IP'
+                    },
+                    {
+                        field: 'tag',
+                        title: '标签',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            if (value) {
+                                var array = value.split(',');
+                                for (var i = 0; i < array.length; i++) {
+                                    str += '<span class="badge badge-pill badge-primary" style="display: inline-block">' + array[i] + ' </span>&nbsp;&nbsp;';
+                                }
+                            }
+
+                            return str;
+                        }
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            if (value) {
+                                str = value.substr(0, 10);
+                            }
+
+                            return '<span style="cursor: default" title="' + value + '">' + str + '</span>';
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        formatter: function (value, row, index) {
+                            var url = /*[[@{/manifest/del/}]]*/;
+                            var str = '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改清单" title="修改">' +
+                                '<i class="mdi mdi-check text-info font-20"></i> </a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + url + '" data-id="' + row.id + '" title="删除">' +
+                                '<i class="mdi mdi-close text-danger font-20"></i></a> ';
+
+                            return str
+                        }
+                    }
+                ]
+            });
+
+            $('#tag').tagsInput({defaultText: '编辑', width: 'auto', height: 78});
+        });
+    </script>
+</div>
+</body>
+</html>

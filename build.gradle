@@ -1,0 +1,95 @@
+group 'com.tiza'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+ext {
+    springBootVersion = '2.0.4.RELEASE'
+    thymeleafVersion = '3.0.9.RELEASE'
+    shiroVersion = '1.4.0'
+}
+
+dependencies {
+    // spring-boot
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-devtools', version: "$springBootVersion"
+
+    // shiro
+    compile group: 'org.apache.shiro', name: 'shiro-spring-boot-starter', version: "$shiroVersion"
+    compile group: 'org.apache.shiro', name: 'shiro-ehcache', version: "$shiroVersion"
+    compile group: 'org.apache.shiro', name: 'shiro-quartz', version: "$shiroVersion"
+
+    // web
+    compile group: 'org.thymeleaf', name: 'thymeleaf', version: "$thymeleafVersion"
+    compile group: 'org.thymeleaf', name: 'thymeleaf-spring4', version: "$thymeleafVersion"
+    compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '2.3.0'
+    compile group: 'com.github.theborakompanioni', name: 'thymeleaf-extras-shiro', version: '2.0.0'
+
+    // 注意jquery版本(必要时需要排除版本冲突)
+    compile group: 'org.webjars.npm', name: 'jquery', version: '3.3.1'
+    compile group: 'org.webjars.npm', name: 'jquery-mousewheel', version: '3.1.13'
+    compile group: 'org.webjars.npm', name: 'jquery.cookie', version: '1.4.1'
+    compile group: 'org.webjars.npm', name: 'fastclick', version: '1.0.6'
+    compile group: 'org.webjars.npm', name: 'bootstrap', version: '4.1.0'
+    compile group: 'org.webjars.npm', name: 'font-awesome', version: '4.3.0'
+    compile group: 'org.webjars.npm', name: 'toastr', version: '2.1.4'
+
+    // other
+    compile group: 'com.alibaba', name: 'druid', version: '1.1.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.36'
+    compile group: 'net.sf.ehcache', name: 'ehcache', version: '2.10.5'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+    // 远程登录
+    compile group: 'ch.ethz.ganymed', name: 'ganymed-ssh2', version: '262'
+    // 图片处理
+    compile group: 'com.madgag', name: 'animated-gif-lib', version: '1.4'
+    compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+bootJar {
+    baseName = 'admin4'
+    version = ''
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.4.BUILD-SNAPSHOT'
+    }
+}

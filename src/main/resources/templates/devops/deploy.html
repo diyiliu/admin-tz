@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">部署管理</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">deploy</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-info" id="addPro" data-title="创建程序">
+                            <i class="fa fa-fw fa-plus"></i> 创建
+                        </button>
+                    </div>
+                    <table id="proTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="proModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proModalTitle">创建程序</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 control-label text-right col-form-label">名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="host" class="col-sm-2 control-label text-right col-form-label">主机</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="host" name="host" placeholder="主机">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="port" class="col-sm-2 control-label text-right col-form-label">端口</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="port" name="port" placeholder="端口">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="user" class="col-sm-2 control-label text-right col-form-label">用户</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="user" name="user" placeholder="用户">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="pwd" class="col-sm-2 control-label text-right col-form-label">口令</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="pwd" name="pwd" placeholder="口令">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="path" class="col-sm-2 control-label text-right col-form-label">路径</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="path" name="path" placeholder="路径">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="savePro"
+                            th:attr="data-url=@{/deploy/save}">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        var $table = $('#proTable');
+
+        $(function () {
+            DP.init({
+                showMd: 'proModal',
+                addBtn: 'addPro',
+                saveBtn: 'savePro',
+                bsTable: 'proTable'
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                height: tableHeight,
+                classes: 'table table-no-bordered',
+                url: /*[[@{/deploy/list}]]*/,
+                columns: [
+                    {
+                        field: '',
+                        title: '序号',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+
+                            return index + 1;
+                        }
+                    },
+                    {
+                        field: 'name',
+                        title: '名称'
+                    },
+                    {
+                        field: 'host',
+                        title: '主机'
+                    },
+                    {
+                        field: 'path',
+                        title: '路径'
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            if (value) {
+                                str = value.substr(0, 10);
+                            }
+
+                            return '<span style="cursor: default" title="' + value + '">' + str + '</span>';
+                        }
+                    },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        formatter: function (value, row, index) {
+                            if (value == 1) {
+
+                                return '<span class="badge badge-success">运行中</span>';
+                            }
+
+                            if (value == 0) {
+
+                                return '<span class="badge badge-secondary">停止</span>';
+                            }
+
+                            return '<span class="badge badge-danger">异常</span>';
+                        }
+                    },
+                    {
+                        field: 'status',
+                        title: '操作',
+                        formatter: function (value, row, index) {
+                            if (value == 1) {
+                                return '<a href="javascript:void(0);" onclick="toStop(this);" data-id="' + row.id + '" title="停止">' +
+                                    '<i class="text-warning mdi mdi-power font-20"></a>';
+                            }
+
+                            var url = /*[[@{/deploy/del/}]]*/;
+                            return '<a href="javascript:void(0);" onclick="toStart(this);" data-id="' + row.id + '" title="启动">' +
+                                '<i class="text-success mdi mdi-replay font-20"></i></a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + url + '" data-id="' + row.id + '" title="删除">' +
+                                '<i class="text-danger mdi mdi-close font-20"></i></a>';
+                        }
+                    }
+                ]
+            });
+
+        });
+
+        function toStart(a) {
+            var id = $(a).data('id');
+            var path = /*[[@{/deploy/exec/1/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: path + id,
+                dataType: "json",
+                beforeSend: function(){
+                    $('.fakeloader').fadeIn();
+                },
+                complete: function(){
+                    $('.fakeloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '程序启动成功');
+                        $table.bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '程序启动失败');
+                    }
+                }, error: function () {
+
+                    alertTip('error', '程序启动失败')
+                }
+            });
+        };
+
+        function toStop(a) {
+            var id = $(a).data('id');
+            var path = /*[[@{/deploy/exec/0/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: path + id,
+                dataType: "json",
+                beforeSend: function(){
+                    $('.fakeloader').fadeIn();
+                },
+                complete: function(){
+                    $('.fakeloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '程序停止成功');
+                        $table.bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '程序停止失败');
+                    }
+                }, error: function () {
+
+                    alertTip('error', '程序停止失败')
+                }
+            });
+        };
+    </script>
+</div>
+</body>
+</html>

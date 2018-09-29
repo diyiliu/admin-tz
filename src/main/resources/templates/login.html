@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="diyiliu">
+    <link th:href="@{/assets/images/favicon.png}" rel="icon" type="image/png">
+
+    <title>Login</title>
+    <!-- bootstrap css -->
+    <link th:href="@{/webjars/bootstrap/4.1.0/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/assets/libs/bootstrap/css/bootstrap-theme.css}" rel="stylesheet">
+    <!-- font icon -->
+    <link th:href="@{/assets/libs/elegant_font/style.css}" rel="stylesheet">
+    <!-- login styles -->
+    <link th:href="@{/assets/css/login.css}" rel="stylesheet">
+    <style>
+        .alert-dismissible {
+            padding-right: 35px;
+        }
+
+        .alert{
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body class="login-img3-body">
+<div class="container">
+    <form class="login-form" method="post" th:action="@{/login}">
+        <div class="login-wrap">
+            <p class="login-img"><i class="icon_lock_alt"></i></p>
+            <div th:unless="${error == null}" class="alert alert-danger alert-dismissible fade in shadowed" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <span th:text="${error}"></span>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon_profile"></i></span>
+                <input type="text" name="username" class="form-control" placeholder="Username" value="admin"
+                       autocomplete="off" autofocus>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon_key_alt"></i></span>
+                <input type="password" name="password" class="form-control" placeholder="Password" value="123456"
+                       autocomplete="new-password">
+            </div>
+            <label class="checkbox">
+                <input type="checkbox" value="remember-me" name="rememberMe"> Remember me
+                <span class="pull-right"> <a href="#"> Forgot Password?</a></span>
+            </label>
+            <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+            <!--<button class="btn btn-info btn-lg btn-block" type="submit">Signup</button>-->
+        </div>
+    </form>
+</div>
+<script th:src="@{/webjars/jquery/3.3.1/dist/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/4.1.0/dist/js/bootstrap.js}"></script>
+</body>
+</html>

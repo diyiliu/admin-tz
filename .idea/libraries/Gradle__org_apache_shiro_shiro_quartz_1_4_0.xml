@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.shiro:shiro-quartz:1.4.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.apache.shiro/shiro-quartz/1.4.0/5f31ae8a145d901ba122b4f87eebddc4bf2c1e56/shiro-quartz-1.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/.gradle/caches/modules-2/files-2.1/org.apache.shiro/shiro-quartz/1.4.0/1721a8e5eab0e6f94c48b25f63c6cf301bf7c83e/shiro-quartz-1.4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
