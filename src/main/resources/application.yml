@@ -48,5 +48,12 @@ shiro:
   remember-me-param: rememberMe
   filter-chain:
     authc: /login,/authenticated
-    anon: /logout,/unauthorized,/webjars/**,/assets/**,/image/**
+    anon: /logout,/unauthorized,/webjars/**,/assets/**,/image/**,/actuator/**
     user: /**
+
+# 监控信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics

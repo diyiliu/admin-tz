@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * Description: TestMain
@@ -60,6 +61,13 @@ public class TestMain {
 
         int i = Double.valueOf(Math.random() * 3 + 1).intValue();
         System.out.println(i);
+    }
+
+
+    @Test
+    public void test6() {
+
+        ScheduledFuture future = null;
     }
 
 }
