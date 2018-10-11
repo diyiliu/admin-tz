@@ -100,7 +100,7 @@ public class TestSystem {
     }
 
     private static void printProcessor(CentralProcessor processor) {
-        System.out.println(processor);
+        System.out.println(processor.getName());
         System.out.println(" " + processor.getPhysicalPackageCount() + " physical CPU package(s)");
         System.out.println(" " + processor.getPhysicalProcessorCount() + " physical CPU core(s)");
         System.out.println(" " + processor.getLogicalProcessorCount() + " logical CPU(s)");

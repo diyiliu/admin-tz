@@ -13,5 +13,9 @@ spring:
     username: root
     password: 123456
 
+  # JPA
   jpa:
-    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false

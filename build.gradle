@@ -78,7 +78,7 @@ tasks.withType(JavaCompile) {
 }
 
 bootJar {
-    baseName = 'admin4'
+    baseName = 'admin-tz'
     version = ''
 }
 

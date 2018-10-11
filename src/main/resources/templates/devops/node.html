@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">节点管理</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="#">Cluster</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Node</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-info" id="addItem" data-title="新增节点">
+                            <i class="fa fa-fw fa-plus"></i> 新增
+                        </button>
+                    </div>
+                    <table id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proModalTitle">新增节点</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 control-label text-right col-form-label">名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="host" class="col-sm-2 control-label text-right col-form-label">主机</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="host" name="host" placeholder="主机">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="port" class="col-sm-2 control-label text-right col-form-label">端口</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="port" name="port" placeholder="端口">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="user" class="col-sm-2 control-label text-right col-form-label">用户</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="user" name="user" placeholder="用户">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="pwd" class="col-sm-2 control-label text-right col-form-label">口令</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="pwd" name="pwd" placeholder="口令">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveItem"
+                            th:attr="data-url=@{/cluster/node}">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        $(function () {
+            DP.init({
+                addBefore: function () {
+                    $('#id').val('');
+                },
+                editBefore: function (i) {
+                    var row = DP.getTable().bootstrapTable('getData')[i];
+
+                    $('#id').val(row.id);
+                    $('#name').val(row.name);
+                    $('#host').val(row.host);
+                    $('#port').val(row.port);
+                    $('#user').val(row.user);
+                    $('#pwd').val(row.pwd);
+                }
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                height: tableHeight,
+                classes: 'table table-no-bordered',
+                url: /*[[@{/cluster/notes}]]*/,
+                columns: [
+                    {
+                        field: 'name',
+                        title: '名称'
+                    },
+                    {
+                        field: 'host',
+                        title: '主机'
+                    },
+                    {
+                        field: 'cpuCore',
+                        title: 'CPU 核数'
+                    },
+                    {
+                        field: 'memorySize',
+                        title: '内存空间 (GB)'
+                    },
+                    {
+                        field: 'diskSize',
+                        title: '磁盘空间 (GB)'
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            if (row.checkOn){
+                                str += '<a href="javascript:void(0);" onclick="" title="监控开启"><i class="mdi mdi-repeat text-success font-20"></i> </a>';
+                            } else {
+                                str += '<a href="javascript:void(0);" onclick="" title="监控关闭"><i class="mdi mdi-repeat-off text-warning font-20"></i> </a>';
+                            }
+
+                            var delUrl = /*[[@{/cluster/node/}]]*/;
+                             str += '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改节点" title="修改">' +
+                                '<i class="mdi mdi-check text-info font-20"></i> </a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + delUrl + '" data-id="' + row.id + '" title="删除">' +
+                                '<i class="mdi mdi-close text-danger font-20"></i></a> ';
+
+                            return str
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

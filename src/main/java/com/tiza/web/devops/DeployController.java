@@ -31,7 +31,6 @@ public class DeployController {
     @PostMapping("/list")
     public Map list(@RequestParam int pageNo, @RequestParam int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-
         Page<Deploy> deployPage = deployJpa.findAll(pageable);
 
         // 获取程序运行状态

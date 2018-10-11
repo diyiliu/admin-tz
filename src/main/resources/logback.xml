@@ -100,4 +100,7 @@
         <appender-ref ref="LOG-ERROR"/>
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <!--<logger name="org.hibernate.SQL" level="DEBUG"/>-->
+    <!--<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>-->
 </configuration>

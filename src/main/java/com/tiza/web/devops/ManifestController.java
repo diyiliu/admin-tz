@@ -40,6 +40,11 @@ public class ManifestController {
 
     @PostMapping("/save")
     public Integer save(Manifest mf) {
+        if (mf.getId() != null){
+
+            return modify(mf);
+        }
+
         mf.setCreateTime(new Date());
         mf = manifestJpa.save(mf);
         if (mf == null) {
@@ -49,6 +54,21 @@ public class ManifestController {
 
         return 1;
     }
+
+    public Integer modify(Manifest mf) {
+        Manifest temp = manifestJpa.findById(mf.getId()).get();
+        mf.setCreateTime(temp.getCreateTime());
+        temp = manifestJpa.save(mf);
+        if (temp == null) {
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+
 
     @DeleteMapping("/del/{id}")
     public Integer delete(@PathVariable long id) {

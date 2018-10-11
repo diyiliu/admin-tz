@@ -19,8 +19,7 @@ import java.io.InputStream;
 public class RemoteUtil {
 
     public static ExecuteOut doStart(Deploy deploy) {
-        String str = "export JAVA_HOME=/usr/local/java/jdk1.8.0_151 \n " +
-                "export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin \n " +
+        String str = "source /etc/profile \n" +
                 "nohup java -jar " + deploy.getPath() +">/logs/chat.log 2>&1 &";
 
         ExecuteOut out = null;
