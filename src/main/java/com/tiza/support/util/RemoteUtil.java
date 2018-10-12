@@ -4,13 +4,16 @@ import ch.ethz.ssh2.*;
 import com.tiza.support.model.ExecuteOut;
 import com.tiza.web.devops.dto.Deploy;
 import com.tiza.web.devops.dto.DevNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.tools.shell.IO;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -18,6 +21,8 @@ import java.util.Properties;
  * Author: DIYILIU
  * Update: 2018-09-11 14:20
  */
+
+@Slf4j
 public class RemoteUtil {
 
     public static ExecuteOut doStart(Deploy deploy) {
@@ -133,80 +138,120 @@ public class RemoteUtil {
         return sb.toString();
     }
 
-
-    public static ExecuteOut execCommand(DevNode node, String command) throws IOException {
-        ExecuteOut out = new ExecuteOut();
-        Connection conn = new Connection(node.getHost(), node.getPort());
-        conn.connect();
-        boolean isAuth = conn.authenticateWithPassword(node.getUser(), node.getPwd());
+    /**
+     * 远程拷贝文件(包括文件夹)
+     *
+     * @param devNode
+     * @param file
+     * @param dir
+     * @param config
+     * @throws IOException
+     */
+    public static void copyFile(DevNode devNode, File file, String dir, Map config) throws IOException {
+        Connection connection = new Connection(devNode.getHost(), devNode.getPort());
+        connection.connect();
+        boolean isAuth = connection.authenticateWithPassword(devNode.getUser(), devNode.getPwd());
         if (isAuth) {
-            Session session = conn.openSession();
-            session.execCommand(command);
-
-            try (InputStream streamOut = new StreamGobbler(session.getStdout());
-                 InputStream streamErr = new StreamGobbler(session.getStdout())) {
-
-                String outStr = IOUtils.toString(streamOut, StandardCharsets.UTF_8);
-                String outErr = IOUtils.toString(streamErr, StandardCharsets.UTF_8);
-                session.waitForCondition(ChannelCondition.EXIT_SIGNAL, Long.MAX_VALUE);
-
-                int ret = session.getExitStatus();
-                out.setResult(ret);
-                out.setOutStr(outStr);
-                out.setOutErr(outErr);
-            }
-            session.close();
+            transferFile(connection, file, dir, config);
         }
-        conn.close();
-
-        return out;
+        connection.close();
     }
-
 
     /**
      * 远程传输
+     *
+     * @param connection
+     * @param file
+     * @param targetDir
+     * @param config
+     * @throws IOException
      */
-    public static void transferFile(DevNode node, File file, String targetDir) throws IOException {
+    private static void transferFile(Connection connection, File file, String targetDir, Map config) throws IOException {
         String fileName = file.getName();
 
+        ExecuteOut out;
         if (file.isDirectory()) {
-            ExecuteOut out = execCommand(node, "mkdir -p " + targetDir + "/" + fileName);
+            String cmd = "mkdir -p " + targetDir + "/" + fileName;
+            out = execCommand(connection, cmd);
             if (out.isOk()) {
 
                 File[] files = file.listFiles();
                 for (File f : files) {
                     String target = targetDir + "/" + fileName;
-                    transferFile(node, f, target);
+                    transferFile(connection, f, target, config);
                 }
+            } else {
+                log.error("执行 SSH 指令[{}]异常!", cmd);
             }
 
             return;
         }
 
-        String cmd = "cd " + targetDir + "; rm" + fileName + "; touch" + fileName;
-        execCommand(node, cmd);
-        Connection conn = new Connection(node.getHost(), node.getPort());
-        conn.connect();
-
-        boolean isAuth = conn.authenticateWithPassword(node.getUser(), node.getPwd());
-        if (isAuth) {
-            SCPClient sCPClient = conn.createSCPClient();
-
-            SCPOutputStream scpOutputStream = sCPClient.put(fileName, file.length(), targetDir, "7777");
-            InputStream inputStream = new FileInputStream(file);
-            if (fileName.endsWith(".properties")) {
-                Properties properties = new Properties();
-                properties.load(inputStream);
-                inputStream.close();
-                // 一定要在修改值之前关闭inputStream
-                properties.setProperty("localhost", node.getHost());
-                properties.store(scpOutputStream, "");
-            }else {
-                IOUtils.copy(inputStream, scpOutputStream);
-                inputStream.close();
-            }
+        String cmd = "cd " + targetDir + "; rm " + fileName + "; touch " + fileName;
+        out = execCommand(connection, cmd);
+        if (!out.isOk()) {
+            log.error("执行 SSH 指令[{}]异常!", cmd);
+            return;
         }
-        conn.close();
+
+        // 修改配置文件信息
+        if (fileName.equals("config.properties")) {
+            InputStream inputStream = new FileInputStream(file);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            inputStream.close();
+            properties.putAll(config);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            properties.store(outputStream, "");
+            byte[] bytes = outputStream.toByteArray();
+
+            SCPClient sCPClient = connection.createSCPClient();
+            try (SCPOutputStream scpOutputStream = sCPClient.put(fileName, bytes.length, targetDir, "7777")){
+
+                scpOutputStream.write(bytes);
+                scpOutputStream.flush();
+            }
+            return;
+        }
+
+        // 普通文件拷贝
+        SCPClient sCPClient = connection.createSCPClient();
+        try (SCPOutputStream scpOutputStream = sCPClient.put(fileName, file.length(), targetDir, "7777");
+             InputStream inputStream = new FileInputStream(file)) {
+
+            IOUtils.copy(inputStream, scpOutputStream);
+        }
+    }
+
+    /**
+     * 指令远程指令
+     *
+     * @param connection
+     * @param command
+     * @return
+     * @throws IOException
+     */
+    private static ExecuteOut execCommand(Connection connection, String command) throws IOException {
+        ExecuteOut out = new ExecuteOut();
+
+        Session session = connection.openSession();
+        session.execCommand(command);
+        try (InputStream streamOut = new StreamGobbler(session.getStdout());
+             InputStream streamErr = new StreamGobbler(session.getStdout())) {
+
+            String outStr = IOUtils.toString(streamOut, StandardCharsets.UTF_8);
+            String outErr = IOUtils.toString(streamErr, StandardCharsets.UTF_8);
+            session.waitForCondition(ChannelCondition.EXIT_SIGNAL, Long.MAX_VALUE);
+
+            int ret = session.getExitStatus();
+            out.setResult(ret);
+            out.setOutStr(outStr);
+            out.setOutErr(outErr);
+        }
+        session.close();
+
+        return out;
     }
 }
 

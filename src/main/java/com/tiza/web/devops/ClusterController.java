@@ -106,10 +106,12 @@ public class ClusterController {
         org.springframework.core.io.Resource monitorRes =
                 new UrlResource(environment.getProperty("upload.monitor"));
 
+        Map config = new HashMap();
+        config.put("localhost",devNode.getHost());
+
         if (monitorRes.exists()) {
             File file = monitorRes.getFile();
-
-            RemoteUtil.transferFile(devNode, file, targetDir);
+            RemoteUtil.copyFile(devNode, file, targetDir, config);
         }
     }
 }
