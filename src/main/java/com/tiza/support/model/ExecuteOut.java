@@ -1,6 +1,7 @@
 package com.tiza.support.model;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Description: ExecuteOut
@@ -16,4 +17,13 @@ public class ExecuteOut {
     private String outStr;
 
     private String outErr;
+
+    public boolean isOk(){
+        if (result == 0 && StringUtils.isEmpty(outErr)){
+
+            return true;
+        }
+
+        return false;
+    }
 }

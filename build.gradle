@@ -58,6 +58,7 @@ dependencies {
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 

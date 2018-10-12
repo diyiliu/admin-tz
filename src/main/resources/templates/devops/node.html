@@ -89,6 +89,17 @@
                                 <input type="text" class="form-control" id="pwd" name="pwd" placeholder="口令">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="checkOn" class="col-sm-2 control-label text-right col-form-label">监控</label>
+                            <div class="col-sm-10">
+                                <input type="hidden" id="checkOn" name="checkOn" value="0">
+                                <div class="form-control" style="border: 0px;box-shadow: none">
+                                    <a href="javascript:void(0);" id="isCheck">
+                                        <i class="font-20 mdi text-secondary mdi-close-network"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -108,6 +119,9 @@
             DP.init({
                 addBefore: function () {
                     $('#id').val('');
+                    $('#checkOn').val(0);
+                    $('#isCheck').find('i').removeClass('mdi-access-point-network').removeClass('text-success')
+                        .addClass('mdi-close-network').addClass('text-secondary');
                 },
                 editBefore: function (i) {
                     var row = DP.getTable().bootstrapTable('getData')[i];
@@ -118,6 +132,17 @@
                     $('#port').val(row.port);
                     $('#user').val(row.user);
                     $('#pwd').val(row.pwd);
+
+                    // 是否开启监控
+                    if (row['checkOn'] == 1) {
+                        $('#checkOn').val(1);
+                        $('#isCheck').find('i').removeClass('mdi-close-network').removeClass('text-secondary')
+                            .addClass('mdi-access-point-network').addClass('text-success');
+                    }else {
+                        $('#checkOn').val(0);
+                        $('#isNav').find('i').removeClass('mdi-access-point-network').removeClass('text-success')
+                            .addClass('mdi-close-network').addClass('text-secondary');
+                    }
                 }
             });
 
@@ -137,37 +162,57 @@
                     },
                     {
                         field: 'cpuCore',
-                        title: 'CPU 核数'
+                        title: 'CPU 核数',
+                        align: 'center'
                     },
                     {
                         field: 'memorySize',
-                        title: '内存空间 (GB)'
+                        title: '内存空间 (GB)',
+                        align: 'center'
                     },
                     {
                         field: 'diskSize',
-                        title: '磁盘空间 (GB)'
+                        title: '磁盘空间 (GB)',
+                        align: 'center'
+                    },
+                    {
+                        field: 'checkOn',
+                        title: '监控状态',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            if (value){
+                                return '<i class="mdi mdi-access-point-network text-success font-20"></i>';
+                            }
+
+                            return '<i class="mdi mdi-close-network text-secondary font-20"></i>';
+                        }
                     },
                     {
                         field: '',
                         title: '操作',
                         formatter: function (value, row, index) {
-                            var str = '';
-                            if (row.checkOn){
-                                str += '<a href="javascript:void(0);" onclick="" title="监控开启"><i class="mdi mdi-repeat text-success font-20"></i> </a>';
-                            } else {
-                                str += '<a href="javascript:void(0);" onclick="" title="监控关闭"><i class="mdi mdi-repeat-off text-warning font-20"></i> </a>';
-                            }
-
                             var delUrl = /*[[@{/cluster/node/}]]*/;
-                             str += '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改节点" title="修改">' +
+
+                            return '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改节点" title="修改">' +
                                 '<i class="mdi mdi-check text-info font-20"></i> </a>' +
                                 '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + delUrl + '" data-id="' + row.id + '" title="删除">' +
                                 '<i class="mdi mdi-close text-danger font-20"></i></a> ';
 
-                            return str
                         }
                     }
                 ]
+            });
+
+            $('#isCheck').on('click',function () {
+                var i = $('#checkOn').val();
+                if (++i % 2 == 0){
+                    $(this).find('i').removeClass('mdi-access-point-network').removeClass('text-success')
+                        .addClass('mdi-close-network').addClass('text-secondary');
+                } else {
+                    $(this).find('i').removeClass('mdi-close-network').removeClass('text-secondary')
+                        .addClass('mdi-access-point-network').addClass('text-success');
+                }
+                $('#checkOn').val(i % 2);
             });
         });
     </script>

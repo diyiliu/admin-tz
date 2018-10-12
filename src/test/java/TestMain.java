@@ -1,11 +1,16 @@
 import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 
@@ -65,9 +70,23 @@ public class TestMain {
 
 
     @Test
-    public void test6() {
+    public void test6() throws Exception{
+        File file1 = new File("C:\\Users\\DIYILIU\\Desktop\\config.properties");
+        File file2 = new File("C:\\Users\\DIYILIU\\Desktop\\config2.properties");
 
-        ScheduledFuture future = null;
+        InputStream inputStream = new FileInputStream(file1);
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        //inputStream.close();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        properties.setProperty("localhost", "192.168.1.181");
+        properties.store(outputStream, "");
+
+        FileOutputStream fileOutputStream = new FileOutputStream(file2);
+        fileOutputStream.write(outputStream.toByteArray());
     }
+
+
 
 }

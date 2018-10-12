@@ -1,9 +1,10 @@
 package com.tiza.web.devops;
 
 import com.tiza.support.util.RemoteUtil;
-import com.tiza.web.devops.dto.Deploy;
 import com.tiza.web.devops.dto.DevNode;
 import com.tiza.web.devops.facade.DevNodeJpa;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/cluster")
 public class ClusterController {
+
+    /**
+     * linux 监控程序路径
+     **/
+    private final static String targetDir = "/opt/java";
+
+    @Resource
+    private Environment environment;
 
     @Resource
     private DevNodeJpa devNodeJpa;
@@ -41,36 +51,39 @@ public class ClusterController {
     }
 
     @PostMapping("/node")
-    public Integer node(DevNode devNode){
-        if (devNode.getId() != null){
+    public Integer node(DevNode devNode) throws Exception {
+        if (devNode.getId() != null) {
 
             return modify(devNode);
         }
 
         devNode.setCreateTime(new Date());
         devNode = devNodeJpa.save(devNode);
-        if (devNode == null){
+        if (devNode == null) {
 
             return 0;
         }
+        remoteCopy(devNode);
 
         return 1;
     }
 
 
-    public Integer modify(DevNode devNode){
+    public Integer modify(DevNode devNode) throws Exception {
         DevNode temp = devNodeJpa.findById(devNode.getId()).get();
-
         temp.setName(devNode.getName());
         temp.setHost(devNode.getHost());
         temp.setPort(devNode.getPort());
         temp.setUser(devNode.getUser());
         temp.setPwd(devNode.getPwd());
+        temp.setCheckOn(devNode.getCheckOn());
+
         temp = devNodeJpa.save(temp);
-        if (temp == null){
+        if (temp == null) {
 
             return 0;
         }
+        remoteCopy(devNode);
 
         return 1;
     }
@@ -83,5 +96,20 @@ public class ClusterController {
         return 1;
     }
 
+    /**
+     * 远程拷贝 监控目录
+     *
+     * @param devNode
+     * @throws Exception
+     */
+    private void remoteCopy(DevNode devNode) throws Exception {
+        org.springframework.core.io.Resource monitorRes =
+                new UrlResource(environment.getProperty("upload.monitor"));
 
+        if (monitorRes.exists()) {
+            File file = monitorRes.getFile();
+
+            RemoteUtil.transferFile(devNode, file, targetDir);
+        }
+    }
 }

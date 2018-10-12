@@ -1,12 +1,12 @@
 import ch.ethz.ssh2.*;
+import com.tiza.support.model.ExecuteOut;
+import com.tiza.web.devops.dto.DevNode;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 /**
  * Description: TestRemote
@@ -141,6 +141,28 @@ public class TestRemote {
 
     }
 
+    @Test
+    public void test6() {
+        try {
+            Connection conn = new Connection(host);
+            conn.connect();
+            boolean isAuth = conn.authenticateWithPassword(user, password);
+            if (isAuth) {
+                connection = conn;
+
+                String localFile = "C:\\Users\\DIYILIU\\Desktop\\monitor";
+                String remoteDir = "/opt/java/monitor";
+
+                transferDirectory(localFile, remoteDir);
+
+                connection.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private Connection connection;
 
     /**
@@ -197,7 +219,7 @@ public class TestRemote {
         session.execCommand(command, StandardCharsets.UTF_8.toString());
         InputStream streamGobbler = new StreamGobbler(session.getStdout());
 
-        String result =  processStream(streamGobbler, "UTF-8");
+        String result = processStream(streamGobbler, "UTF-8");
 
         session.waitForCondition(ChannelCondition.EXIT_SIGNAL, Long.MAX_VALUE);
         if (session.getExitStatus().intValue() == 0) {
@@ -208,5 +230,92 @@ public class TestRemote {
         IOUtils.closeQuietly(streamGobbler);
         session.close();
         return result;
+    }
+
+
+    @Test
+    public void test11() throws Exception {
+        DevNode node = new DevNode();
+        node.setHost("192.168.1.181");
+        node.setPort(22);
+        node.setUser("root");
+        node.setPwd("123456");
+
+        String targetDir = "/opt/java";
+        File file = new File("C:\\Users\\DIYILIU\\Desktop\\monitor\\config.properties");
+
+        transferFile(node, file, targetDir);
+    }
+
+    /**
+     * 远程传输
+     */
+    public static void transferFile(DevNode node, File file, String targetDir) throws IOException {
+        String fileName = file.getName();
+
+        String cmd = "cd " + targetDir + "; rm" + fileName + "; touch" + fileName;
+        execCommand(node, cmd);
+
+        Connection connection = new Connection(node.getHost(), node.getPort());
+        connection.connect();
+        boolean isAuth = connection.authenticateWithPassword(node.getUser(), node.getPwd());
+        if (!isAuth) {
+            System.out.println("连接建立失败");
+            return;
+        }
+        SCPClient scpClient = new SCPClient(connection);
+        SCPOutputStream os = scpClient.put(fileName, file.length(), targetDir, "7777");
+
+        FileInputStream in = new FileInputStream(file);
+        Properties properties = new Properties();
+        properties.load(in);
+        in.close();
+
+        File file1 = new File("C:\\Users\\DIYILIU\\Desktop\\monitor\\config1.properties");
+        properties.setProperty("localhost", "192.168.1.1");
+        properties.store(new FileOutputStream(file1), "");
+
+        file = file1;
+
+        in = new FileInputStream(file);
+        byte[] bytes = new byte[4096];
+        int length;
+        while ((length = in.read(bytes)) != -1) {
+            os.write(bytes, 0, length);
+        }
+
+        os.flush();
+        in.close();
+        os.close();
+        connection.close();
+    }
+
+
+    public static ExecuteOut execCommand(DevNode node, String command) throws IOException {
+        ExecuteOut out = new ExecuteOut();
+        Connection conn = new Connection(node.getHost(), node.getPort());
+        conn.connect();
+        boolean isAuth = conn.authenticateWithPassword(node.getUser(), node.getPwd());
+        if (isAuth) {
+            Session session = conn.openSession();
+            session.execCommand(command);
+
+            try (InputStream streamOut = new StreamGobbler(session.getStdout());
+                 InputStream streamErr = new StreamGobbler(session.getStdout())) {
+
+                String outStr = org.apache.commons.io.IOUtils.toString(streamOut, StandardCharsets.UTF_8);
+                String outErr = org.apache.commons.io.IOUtils.toString(streamErr, StandardCharsets.UTF_8);
+                session.waitForCondition(ChannelCondition.EXIT_SIGNAL, Long.MAX_VALUE);
+
+                int ret = session.getExitStatus();
+                out.setResult(ret);
+                out.setOutStr(outStr);
+                out.setOutErr(outErr);
+            }
+            session.close();
+        }
+        conn.close();
+
+        return out;
     }
 }

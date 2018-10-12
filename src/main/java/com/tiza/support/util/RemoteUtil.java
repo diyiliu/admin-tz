@@ -1,15 +1,17 @@
 package com.tiza.support.util;
 
-import ch.ethz.ssh2.ChannelCondition;
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.Session;
-import ch.ethz.ssh2.StreamGobbler;
+import ch.ethz.ssh2.*;
 import com.tiza.support.model.ExecuteOut;
 import com.tiza.web.devops.dto.Deploy;
+import com.tiza.web.devops.dto.DevNode;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Properties;
 
 /**
  * Description: RemoteUtil
@@ -20,7 +22,7 @@ public class RemoteUtil {
 
     public static ExecuteOut doStart(Deploy deploy) {
         String str = "source /etc/profile \n" +
-                "nohup java -jar " + deploy.getPath() +">/logs/chat.log 2>&1 &";
+                "nohup java -jar " + deploy.getPath() + ">/logs/chat.log 2>&1 &";
 
         ExecuteOut out = null;
         try {
@@ -130,4 +132,82 @@ public class RemoteUtil {
         }
         return sb.toString();
     }
+
+
+    public static ExecuteOut execCommand(DevNode node, String command) throws IOException {
+        ExecuteOut out = new ExecuteOut();
+        Connection conn = new Connection(node.getHost(), node.getPort());
+        conn.connect();
+        boolean isAuth = conn.authenticateWithPassword(node.getUser(), node.getPwd());
+        if (isAuth) {
+            Session session = conn.openSession();
+            session.execCommand(command);
+
+            try (InputStream streamOut = new StreamGobbler(session.getStdout());
+                 InputStream streamErr = new StreamGobbler(session.getStdout())) {
+
+                String outStr = IOUtils.toString(streamOut, StandardCharsets.UTF_8);
+                String outErr = IOUtils.toString(streamErr, StandardCharsets.UTF_8);
+                session.waitForCondition(ChannelCondition.EXIT_SIGNAL, Long.MAX_VALUE);
+
+                int ret = session.getExitStatus();
+                out.setResult(ret);
+                out.setOutStr(outStr);
+                out.setOutErr(outErr);
+            }
+            session.close();
+        }
+        conn.close();
+
+        return out;
+    }
+
+
+    /**
+     * 远程传输
+     */
+    public static void transferFile(DevNode node, File file, String targetDir) throws IOException {
+        String fileName = file.getName();
+
+        if (file.isDirectory()) {
+            ExecuteOut out = execCommand(node, "mkdir -p " + targetDir + "/" + fileName);
+            if (out.isOk()) {
+
+                File[] files = file.listFiles();
+                for (File f : files) {
+                    String target = targetDir + "/" + fileName;
+                    transferFile(node, f, target);
+                }
+            }
+
+            return;
+        }
+
+        String cmd = "cd " + targetDir + "; rm" + fileName + "; touch" + fileName;
+        execCommand(node, cmd);
+        Connection conn = new Connection(node.getHost(), node.getPort());
+        conn.connect();
+
+        boolean isAuth = conn.authenticateWithPassword(node.getUser(), node.getPwd());
+        if (isAuth) {
+            SCPClient sCPClient = conn.createSCPClient();
+
+            SCPOutputStream scpOutputStream = sCPClient.put(fileName, file.length(), targetDir, "7777");
+            InputStream inputStream = new FileInputStream(file);
+            if (fileName.endsWith(".properties")) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                inputStream.close();
+                // 一定要在修改值之前关闭inputStream
+                properties.setProperty("localhost", node.getHost());
+                properties.store(scpOutputStream, "");
+            }else {
+                IOUtils.copy(inputStream, scpOutputStream);
+                inputStream.close();
+            }
+        }
+        conn.close();
+    }
 }
+
+
