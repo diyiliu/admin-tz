@@ -73,11 +73,35 @@
                     },
                     {
                         field: 'processInfo',
-                        title: '线程 (内存占用% Top1)'
+                        title: '线程 (内存占用% Top3)',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            var array = value.split(',');
+                            for (var i = 0; i < array.length; i++){
+                                str += array[i];
+                                if (i < array.length - 1){
+                                    str += '<br>'
+                                }
+                            }
+
+                            return str;
+                        }
                     },
                     {
                         field: 'diskInfo',
-                        title: '磁盘 (使用率% Top1)'
+                        title: '磁盘 (使用率% Top3)',
+                        formatter: function (value, row, index) {
+                            var str = '';
+                            var array = value.split(',');
+                            for (var i = 0; i < array.length; i++){
+                                str += array[i];
+                                if (i < array.length - 1){
+                                    str += '<br>'
+                                }
+                            }
+
+                            return str;
+                        }
                     },
                     {
                         field: 'status',

@@ -154,7 +154,7 @@ public class RemoteUtil {
      * @return
      * @throws IOException
      */
-    private static ExecuteOut execCommand(Connection connection, String command) throws IOException {
+    public static ExecuteOut execCommand(Connection connection, String command) throws IOException {
         ExecuteOut out = new ExecuteOut();
 
         Session session = connection.openSession();
