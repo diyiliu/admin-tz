@@ -18,6 +18,8 @@ public interface NodeStatusJpa extends JpaRepository<NodeStatus, Long> {
     @Query("select t from NodeStatus t where t.node.checkOn = 1")
     Page<NodeStatus> findByNodeCheckOn(Pageable pageable);
 
+    NodeStatus findByNodeHost(String ip);
+
     @Transactional
     void deleteByNode(DevNode node);
 }

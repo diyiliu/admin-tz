@@ -63,32 +63,32 @@
                     },
                     {
                         field: 'cpuUsage',
-                        title: 'CPU 使用率',
+                        title: 'CPU 使用率(%)',
                         align: 'center'
                     },
                     {
                         field: 'memoryUsage',
-                        title: '内存 使用率',
+                        title: '内存 使用率(%)',
                         align: 'center'
                     },
                     {
                         field: 'processInfo',
-                        title: '线程 (内存占用 Top1)'
+                        title: '线程 (内存占用% Top1)'
                     },
                     {
                         field: 'diskInfo',
-                        title: '磁盘 (使用率 Top1)'
+                        title: '磁盘 (使用率% Top1)'
                     },
                     {
                         field: 'status',
                         title: '状态',
                         align: 'center',
                         formatter: function (value, row, index) {
-                            if (value == 1){
-                                return '<i class="mdi mdi-heart-pulse text-success font-20"></i>';
+                            if (value == 1) {
+                                return '<span class="badge badge-success">运行中</span>';
                             }
 
-                            return '<i class="mdi mdi-heart-broken text-danger font-20"></i>';
+                            return '<span class="badge badge-secondary">停止</span>';
                         }
                     },
                     {
@@ -100,18 +100,47 @@
                         field: '',
                         title: '操作',
                         formatter: function (value, row, index) {
-                            var delUrl = /*[[@{/cluster/node/}]]*/;
+                            var id = row.node.id;
+                            if (row.status == 1) {
+                                return '<a href="javascript:void(0);" data-id="' + id + '" onclick="executeJar(this, 0)" title="停止">' +
+                                    '<i class="mdi mdi-stop-circle-outline text-danger font-20"></i> </a>'
+                            }
 
-                            return '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改节点" title="修改">' +
-                                '<i class="mdi mdi-check text-info font-20"></i> </a>' +
-                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + delUrl + '" data-id="' + row.id + '" title="删除">' +
-                                '<i class="mdi mdi-close text-danger font-20"></i></a> ';
-
+                            return '<a href="javascript:void(0);" data-id="' + id + '"  onclick="executeJar(this, 1)" title="启动">' +
+                                '<i class="mdi mdi-play-circle-outline text-success font-20"></i> </a>'
                         }
                     }
                 ]
             });
         });
+
+        var $table = DP.getTable();
+        function executeJar(a, i) {
+            var id = $(a).data('id');
+            var path = /*[[@{/cluster/monitor/}]]*/;
+            $.ajax({
+                type: 'post',
+                url: path + id + '/' + i,
+                dataType: "json",
+                beforeSend: function(){
+                    $('.fakeloader').fadeIn();
+                },
+                complete: function(){
+                    $('.fakeloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '程序启动成功');
+                        $table.bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '程序启动失败');
+                    }
+                }, error: function () {
+
+                    alertTip('error', '程序启动失败')
+                }
+            });
+        };
     </script>
 </div>
 </body>

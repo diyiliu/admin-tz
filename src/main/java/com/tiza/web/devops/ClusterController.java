@@ -1,5 +1,6 @@
 package com.tiza.web.devops;
 
+import com.tiza.support.model.ExecuteOut;
 import com.tiza.support.util.RemoteUtil;
 import com.tiza.web.devops.dto.Deploy;
 import com.tiza.web.devops.dto.DevNode;
@@ -8,6 +9,7 @@ import com.tiza.web.devops.facade.DeployJpa;
 import com.tiza.web.devops.facade.DevNodeJpa;
 import com.tiza.web.devops.facade.NodeStatusJpa;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -103,6 +105,11 @@ public class ClusterController {
         // SCP 远程拷贝
         if (temp.getCheckOn() == 1) {
             remoteCopy(temp);
+        }else {
+            Deploy deploy = new Deploy();
+            deploy.setPath(temp.getPath());
+            deploy.setNode(temp);
+            RemoteUtil.run(deploy, 0);
         }
 
         return 1;
@@ -110,9 +117,11 @@ public class ClusterController {
 
     @DeleteMapping("/node/{id}")
     public Integer note(@PathVariable long id) {
-        DevNode node = new DevNode(id);
+        DevNode node = devNodeJpa.findById(id).get();
         List<Deploy> deployList = deployJpa.findByNode(node);
-        if (CollectionUtils.isNotEmpty(deployList)){
+        NodeStatus status = nodeStatusJpa.findByNodeHost(node.getHost());
+        // 有正在运行的程序, 无法删除
+        if (CollectionUtils.isNotEmpty(deployList) || status.getStatus() == 1){
 
             return 0;
         }
@@ -122,10 +131,50 @@ public class ClusterController {
         return 1;
     }
 
+    @PostMapping("/monitor/{id}/{status}")
+    public Map executeJar(@PathVariable long id, @PathVariable int status) {
+        DevNode node = devNodeJpa.findById(id).get();
+
+        Deploy deploy = new Deploy();
+        deploy.setPath(node.getPath());
+        deploy.setNode(node);
+        ExecuteOut out = RemoteUtil.run(deploy, status);
+
+        Map respMap = new HashMap();
+        if (out.isOk()){
+            respMap.put("status", 1);
+        }else {
+            respMap.put("status", 0);
+            if (out != null) {
+                respMap.put("error", out.getOutErr());
+            }
+        }
+
+        return respMap;
+    }
+
+
     @PostMapping("/status")
     public Map noteStatusList(@RequestParam int pageNo, @RequestParam int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("node.name"));
         Page<NodeStatus> statusPage = nodeStatusJpa.findByNodeCheckOn(pageable);
+
+        // 获取程序运行状态
+        for (NodeStatus status : statusPage.getContent()) {
+            Deploy deploy = new Deploy();
+            DevNode node = status.getNode();
+            deploy.setPath(node.getPath());
+            deploy.setNode(node);
+            ExecuteOut out = RemoteUtil.run(deploy, -1);
+            if (out.getResult() == 0 &&
+                    StringUtils.isNotEmpty(out.getOutStr())){
+                status.setStatus(1);
+            }else {
+                status.setStatus(0);
+            }
+
+            nodeStatusJpa.save(status);
+        }
 
         Map respMap = new HashMap();
         respMap.put("data", statusPage.getContent());

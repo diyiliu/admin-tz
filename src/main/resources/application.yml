@@ -38,8 +38,8 @@ upload:
   user: file:./upload/user/
   monitor:
    source: file:./upload/monitor/
-   target: /opt/java/
-   jar: monitor-client.jar
+   target: /opt/java
+   jar: /monitor/monitor-client.jar
 
 # shiro
 shiro:

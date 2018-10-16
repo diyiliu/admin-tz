@@ -97,4 +97,11 @@ public class TestMain {
 
         return   new BigDecimal(size).divide(new BigDecimal(1024), 0, RoundingMode.UP).intValue();
     }
+
+    @Test
+    public void test8(){
+
+        double d = 100.123d;
+        System.out.println(String.format("%.0f", d * 100));
+    }
 }

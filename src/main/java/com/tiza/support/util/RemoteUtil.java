@@ -114,11 +114,7 @@ public class RemoteUtil {
         }
 
         String cmd = "cd " + targetDir + "; rm " + fileName + "; touch " + fileName;
-        out = execCommand(connection, cmd);
-        if (!out.isOk()) {
-            log.error("执行 SSH 指令[{}]异常!", cmd);
-            return;
-        }
+        execCommand(connection, cmd);
 
         // 修改配置文件信息
         if (fileName.equals("config.properties")) {
