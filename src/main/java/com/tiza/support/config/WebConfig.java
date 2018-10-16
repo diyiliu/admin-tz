@@ -1,10 +1,14 @@
 package com.tiza.support.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import com.diyiliu.server.netty.MonitorServer;
+import com.diyiliu.server.support.IMsgObserver;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.tiza.support.model.MonitorObserver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +33,19 @@ public class WebConfig {
 
     @Resource
     private Environment environment;
+
+    @Autowired
+    private IMsgObserver msgObserver;
+
+    @Bean
+    public MonitorServer monitorServer(){
+        MonitorServer server = new MonitorServer();
+        server.setPort(environment.getProperty("monitor.port", Integer.class));
+        server.setObserver(msgObserver);
+        server.init();
+
+        return server;
+    }
 
     @Bean
     public RestTemplate restTemplate(ClientHttpRequestFactory factory) {

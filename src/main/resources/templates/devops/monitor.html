@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">节点监控</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="#">Cluster</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Monitor</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <table id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        $(function () {
+            DP.init();
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                height: tableHeight,
+                classes: 'table table-no-bordered',
+                url: /*[[@{/cluster/status}]]*/,
+                columns: [
+                    {
+                        field: 'node',
+                        title: '节点',
+                        formatter: function (value, row, index) {
+
+                            return value.name;
+                        }
+                    },
+                    {
+                        field: 'cpuUsage',
+                        title: 'CPU 使用率',
+                        align: 'center'
+                    },
+                    {
+                        field: 'memoryUsage',
+                        title: '内存 使用率',
+                        align: 'center'
+                    },
+                    {
+                        field: 'processInfo',
+                        title: '线程 (内存占用 Top1)'
+                    },
+                    {
+                        field: 'diskInfo',
+                        title: '磁盘 (使用率 Top1)'
+                    },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+                            if (value == 1){
+                                return '<i class="mdi mdi-heart-pulse text-success font-20"></i>';
+                            }
+
+                            return '<i class="mdi mdi-heart-broken text-danger font-20"></i>';
+                        }
+                    },
+                    {
+                        field: 'updateTime',
+                        title: '更新时间',
+                        align: 'center'
+                    },
+                    {
+                        field: '',
+                        title: '操作',
+                        formatter: function (value, row, index) {
+                            var delUrl = /*[[@{/cluster/node/}]]*/;
+
+                            return '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改节点" title="修改">' +
+                                '<i class="mdi mdi-check text-info font-20"></i> </a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + delUrl + '" data-id="' + row.id + '" title="删除">' +
+                                '<i class="mdi mdi-close text-danger font-20"></i></a> ';
+
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

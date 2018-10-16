@@ -107,7 +107,6 @@ public class HomeController {
             return "error/404";
         }
         String view = asset.getView();
-
         // 设置当前页
         request.getSession().setAttribute("active", asset);
 

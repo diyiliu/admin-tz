@@ -4,6 +4,7 @@ import com.tiza.support.model.ExecuteOut;
 import com.tiza.support.util.RemoteUtil;
 import com.tiza.web.devops.dto.Deploy;
 import com.tiza.web.devops.facade.DeployJpa;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,8 +36,18 @@ public class DeployController {
 
         // 获取程序运行状态
         for (Deploy deploy : deployPage.getContent()) {
-            int status = RemoteUtil.checkStatus(deploy);
-            deploy.setStatus(status);
+            ExecuteOut out = RemoteUtil.run(deploy, -1);
+            if (out.getResult() == 0 &&
+                    StringUtils.isNotEmpty(out.getOutStr())){
+
+                deploy.setStatus(1);
+            }else {
+                if (StringUtils.isEmpty(out.getOutErr())){
+                    deploy.setStatus(0);
+                }else {
+                    deploy.setStatus(-1);
+                }
+            }
         }
 
         Map respMap = new HashMap();
@@ -45,7 +56,6 @@ public class DeployController {
 
         return respMap;
     }
-
 
     @PostMapping("/save")
     public Integer save(Deploy deploy) {
@@ -66,21 +76,11 @@ public class DeployController {
         return 1;
     }
 
-
-
     @PutMapping("/exec/{status}/{id}")
-    public Map startJar(@PathVariable int status, @PathVariable Long id) {
+    public Map executeJar(@PathVariable int status, @PathVariable Long id) {
         Deploy deploy = deployJpa.findById(id).get();
 
-        ExecuteOut out = null;
-        if (status == 0) {
-
-            out = RemoteUtil.doStop(deploy);
-        } else if (status == 1) {
-
-            out = RemoteUtil.doStart(deploy);
-        }
-
+        ExecuteOut out = RemoteUtil.run(deploy, status);
         Map respMap = new HashMap();
         if (out == null || out.getResult() != 0) {
             respMap.put("status", 0);

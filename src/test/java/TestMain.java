@@ -87,6 +87,14 @@ public class TestMain {
         fileOutputStream.write(outputStream.toByteArray());
     }
 
+    @Test
+    public void test7(){
 
+        System.out.println(mb2Gb(2049));
+    }
 
+    private int mb2Gb(int size){
+
+        return   new BigDecimal(size).divide(new BigDecimal(1024), 0, RoundingMode.UP).intValue();
+    }
 }

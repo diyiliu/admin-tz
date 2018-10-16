@@ -59,6 +59,18 @@
                 <div class="modal-body">
                     <form class="form-horizontal" role="form">
                         <input type="hidden" id="id" name="id">
+
+                        <div class="form-group row">
+                            <label for="selNode" class="col-sm-2 control-label text-right col-form-label">主机</label>
+                            <div class="col-sm-10">
+                                <select id="selNode" name="node.id" data-placeholder="选择"
+                                        class="form-control chosen-select">
+                                    <option value=""></option>
+                                    <option th:each="node:${#request.getAttribute('nodes')}"
+                                            th:value="${node.id}" th:text="${node.name}"></option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="name" class="col-sm-2 control-label text-right col-form-label">名称</label>
                             <div class="col-sm-10">
@@ -66,33 +78,15 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="host" class="col-sm-2 control-label text-right col-form-label">主机</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="host" name="host" placeholder="主机">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="port" class="col-sm-2 control-label text-right col-form-label">端口</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="port" name="port" placeholder="端口">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="user" class="col-sm-2 control-label text-right col-form-label">用户</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="user" name="user" placeholder="用户">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="pwd" class="col-sm-2 control-label text-right col-form-label">口令</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="pwd" name="pwd" placeholder="口令">
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label for="path" class="col-sm-2 control-label text-right col-form-label">路径</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="path" name="path" placeholder="路径">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="args" class="col-sm-2 control-label text-right col-form-label">参数</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="args" id="args" rows="3"></textarea>
                             </div>
                         </div>
                     </form>
@@ -117,7 +111,13 @@
                 showMd: 'proModal',
                 addBtn: 'addPro',
                 saveBtn: 'savePro',
-                bsTable: 'proTable'
+                bsTable: 'proTable',
+                addAfter: function () {
+                    $('#selNode').chosen("destroy");
+                    $('#selNode').chosen({
+                        disable_search: true
+                    });
+                }
             });
 
             var tableHeight = $("div.container-fluid").height() - 60;
@@ -140,8 +140,12 @@
                         title: '名称'
                     },
                     {
-                        field: 'host',
-                        title: '主机'
+                        field: 'node',
+                        title: '主机',
+                        formatter: function (value, row, index) {
+
+                            return value.name;
+                        }
                     },
                     {
                         field: 'path',

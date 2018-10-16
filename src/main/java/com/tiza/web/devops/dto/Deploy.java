@@ -13,24 +13,22 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table
+@Table(name = "dev_deploy")
 public class Deploy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "node_id", referencedColumnName = "id")
+    private DevNode node;
+
     private String name;
 
-    private String host;
-
-    private Integer port;
-
-    private String user;
-
-    private String pwd;
-
     private String path;
+
+    private String args;
 
     private Date createTime;
 

@@ -33,12 +33,13 @@ spring:
 logging:
   config: 'classpath:logback.xml'
 
-
-
 # 文件路径
 upload:
   user: file:./upload/user/
-  monitor: file:./upload/monitor/
+  monitor:
+   source: file:./upload/monitor/
+   target: /opt/java/
+   jar: monitor-client.jar
 
 # shiro
 shiro:
@@ -53,6 +54,10 @@ shiro:
     authc: /login,/authenticated
     anon: /logout,/unauthorized,/webjars/**,/assets/**,/image/**,/actuator/**
     user: /**
+
+# 监控
+monitor:
+  port: 9909
 
 # 监控信息
 management:

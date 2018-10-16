@@ -19,6 +19,15 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../libs/monitor.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-thymeleaf:2.0.4.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:2.0.4.RELEASE" level="project" />
@@ -66,6 +75,7 @@
     <orderEntry type="library" name="Gradle: com.madgag:animated-gif-lib:1.4" level="project" />
     <orderEntry type="library" name="Gradle: net.coobird:thumbnailator:0.4.8" level="project" />
     <orderEntry type="library" name="Gradle: com.github.oshi:oshi-core:3.8.4" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-all:4.1.22.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-tomcat:2.0.4.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate.validator:hibernate-validator:6.0.11.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-webmvc:5.0.8.RELEASE" level="project" />

@@ -7,12 +7,9 @@ import com.tiza.web.devops.dto.DevNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.tools.shell.IO;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.Properties;
 
@@ -25,117 +22,46 @@ import java.util.Properties;
 @Slf4j
 public class RemoteUtil {
 
-    public static ExecuteOut doStart(Deploy deploy) {
-        String str = "source /etc/profile \n" +
-                "nohup java -jar " + deploy.getPath() + ">/logs/chat.log 2>&1 &";
-
-        ExecuteOut out = null;
-        try {
-            out = callProcess(deploy, str);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return out;
-    }
-
-    public static ExecuteOut doStop(Deploy deploy) {
+    public static ExecuteOut run(Deploy deploy, int status) {
         String path = deploy.getPath();
-        String proc = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+        String cmd = "";
+        // 启动
+        if (status == 1) {
+            cmd += "source /etc/profile \n";
+            if (StringUtils.isNotEmpty(deploy.getArgs())) {
 
-        String str = "ps -ef|grep " + proc + "* |grep -v grep |awk '{print $2}'| sed -e \"s/^/kill -9 /g\" | sh -";
-        ExecuteOut out = null;
-        try {
-            out = callProcess(deploy, str);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return out;
-    }
-
-
-    public static int checkStatus(Deploy deploy) {
-        String path = deploy.getPath();
-        String proc = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
-
-        String str = "ps -ef|grep " + proc + "* | grep -v 'grep'";
-        try {
-            ExecuteOut out = callProcess(deploy, str);
-            if (out.getResult() == 0 &&
-                    StringUtils.isNotEmpty(out.getOutStr())) {
-
-                return 1;
-            }
-
-            return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return -1;
-    }
-
-    private static ExecuteOut callProcess(Deploy deploy, String str) throws Exception {
-        String host = deploy.getHost();
-        int port = deploy.getPort();
-        String user = deploy.getUser();
-        String password = deploy.getPwd();
-
-        InputStream stdOut = null;
-        InputStream stdErr = null;
-        Connection conn = null;
-
-        String outStr, outErr;
-        try {
-            conn = new Connection(host, port);
-            conn.connect();
-            boolean login = conn.authenticateWithPassword(user, password);
-            if (login) {
-                Session session = conn.openSession();
-                // Execute a command on the remote machine.
-                session.execCommand(str);
-                stdOut = new StreamGobbler(session.getStdout());
-                outStr = processStream(stdOut, "UTF-8");
-                stdErr = new StreamGobbler(session.getStderr());
-                outErr = processStream(stdErr, "UTF-8");
-                session.waitForCondition(ChannelCondition.EXIT_STATUS, 5 * 60 * 1000);
-                int ret = session.getExitStatus();
-
-                ExecuteOut out = new ExecuteOut();
-                out.setResult(ret);
-                out.setOutStr(outStr);
-                out.setOutErr(outErr);
-
-                return out;
+                cmd += deploy.getArgs();
             } else {
-                System.err.println("登录远程机器失败" + host); // 自定义异常类 实现略
+                cmd += "nohup java -jar " + deploy.getPath() + " >log.txt 2>&1 &";
             }
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
-            IOUtils.closeQuietly(stdOut);
-            IOUtils.closeQuietly(stdErr);
+        }
+        // 停止
+        else if (status == 0) {
+            String proc = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+            cmd = "ps -ef|grep " + proc + "* |grep -v grep |awk '{print $2}'| sed -e \"s/^/kill -9 /g\" | sh -";
+
+        }
+        // 检测状态
+        else if (status == -1) {
+            String proc = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+            cmd = "ps -ef|grep " + proc + "* | grep -v 'grep'";
         }
 
-        return null;
-    }
-
-
-    /**
-     * @param in
-     * @param charset
-     * @return
-     * @throws Exception
-     */
-    private static String processStream(InputStream in, String charset) throws Exception {
-        byte[] buf = new byte[1024];
-        StringBuilder sb = new StringBuilder();
-        while (in.read(buf) != -1) {
-            sb.append(new String(buf, charset));
+        DevNode devNode = deploy.getNode();
+        ExecuteOut out = null;
+        try {
+            Connection connection = new Connection(devNode.getHost(), devNode.getPort());
+            connection.connect();
+            boolean isAuth = connection.authenticateWithPassword(devNode.getUser(), devNode.getPwd());
+            if (isAuth) {
+                out = execCommand(connection, cmd);
+            }
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return sb.toString();
+
+        return out;
     }
 
     /**
@@ -207,7 +133,7 @@ public class RemoteUtil {
             byte[] bytes = outputStream.toByteArray();
 
             SCPClient sCPClient = connection.createSCPClient();
-            try (SCPOutputStream scpOutputStream = sCPClient.put(fileName, bytes.length, targetDir, "7777")){
+            try (SCPOutputStream scpOutputStream = sCPClient.put(fileName, bytes.length, targetDir, "7777")) {
 
                 scpOutputStream.write(bytes);
                 scpOutputStream.flush();
@@ -238,7 +164,7 @@ public class RemoteUtil {
         Session session = connection.openSession();
         session.execCommand(command);
         try (InputStream streamOut = new StreamGobbler(session.getStdout());
-             InputStream streamErr = new StreamGobbler(session.getStdout())) {
+             InputStream streamErr = new StreamGobbler(session.getStderr())) {
 
             String outStr = IOUtils.toString(streamOut, StandardCharsets.UTF_8);
             String outErr = IOUtils.toString(streamErr, StandardCharsets.UTF_8);

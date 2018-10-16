@@ -10,6 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface DevNodeJpa extends JpaRepository<DevNode, Long> {
 
-
-
+    DevNode findByHost(String ip);
 }

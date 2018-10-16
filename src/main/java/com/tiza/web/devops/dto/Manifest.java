@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table
+@Table(name = "dev_manifest")
 public class Manifest {
 
     @Id

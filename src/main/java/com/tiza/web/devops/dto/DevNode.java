@@ -16,6 +16,13 @@ import java.util.Date;
 @Table(name = "dev_node")
 public class DevNode {
 
+    public DevNode() {
+    }
+
+    public DevNode(long id) {
+        this.id = id;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,7 +47,7 @@ public class DevNode {
 
     private String pwd;
 
-    private Integer status;
+    private String path;
 
     private Integer checkOn;
 
