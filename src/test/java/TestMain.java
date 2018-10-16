@@ -103,6 +103,12 @@ public class TestMain {
         double d = 0.123;
 
         System.out.println(String.format("%.1f%%", d * 100));
+
+
+        String path = "/opt/java/estar/estar-gw.jar";
+        String dir = path.substring(0, path.lastIndexOf("/") + 1);
+
+        System.out.println(dir);
     }
 
     @Test

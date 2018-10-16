@@ -24,10 +24,13 @@ public class RemoteUtil {
 
     public static ExecuteOut run(Deploy deploy, int status) {
         String path = deploy.getPath();
+        String dir = path.substring(0, path.lastIndexOf("/"));
         String cmd = "";
         // 启动
         if (status == 1) {
-            cmd += "source /etc/profile \n";
+            cmd += "source /etc/profile \n " +
+                    "cd " + dir + "\n ";
+
             if (StringUtils.isNotEmpty(deploy.getArgs())) {
 
                 cmd += deploy.getArgs();
