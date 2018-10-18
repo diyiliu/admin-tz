@@ -9,6 +9,7 @@ import com.tiza.web.sys.facade.SysUserJpa;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -28,6 +29,9 @@ import java.util.stream.Collectors;
 @Aspect
 @Component
 public class PageDataBindingFilter {
+
+    @Resource
+    private Environment environment;
 
     @Resource
     private SysRoleJpa sysRoleJpa;
@@ -59,9 +63,11 @@ public class PageDataBindingFilter {
             return;
         }
 
-        if ("deploy".equals(menu)) {
+        if (menu.startsWith("deploy")) {
             List<DevNode> nodeList = devNodeJpa.findAll(Sort.by("name"));
             request.setAttribute("nodes", nodeList);
+            request.setAttribute("deployDir", environment.getProperty("upload.deploy-dir"));
+
 
             return;
         }

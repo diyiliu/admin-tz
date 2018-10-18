@@ -1,5 +1,6 @@
-package com.tiza.web.devops.dto;
+package com.tiza.web.deploy.dto;
 
+import com.tiza.web.devops.dto.DevNode;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,14 +25,25 @@ public class Deploy {
     @JoinColumn(name = "node_id", referencedColumnName = "id")
     private DevNode node;
 
+    /** 程序类型(0: 常规任务; 1: 实时任务; 2: 离线任务;) **/
+    private Integer type;
+
     private String name;
 
-    private String path;
+    private String dir;
+
+    private String jarFile;
 
     private String args;
 
-    private Date createTime;
+    private Integer status;
+
+    private Date uptime;
+
+    private Date updateTime;
 
     @Transient
-    private Integer status;
+    private String uptimeStr;
+
+    private Date createTime;
 }

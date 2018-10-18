@@ -1,6 +1,6 @@
-package com.tiza.web.devops.facade;
+package com.tiza.web.deploy.facade;
 
-import com.tiza.web.devops.dto.Deploy;
+import com.tiza.web.deploy.dto.Deploy;
 import com.tiza.web.devops.dto.DevNode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,5 +13,5 @@ import java.util.List;
  */
 public interface DeployJpa extends JpaRepository<Deploy, Long> {
 
-    List<Deploy> findByNode(DevNode node);
+    List<Deploy> findByNodeId(Long id);
 }

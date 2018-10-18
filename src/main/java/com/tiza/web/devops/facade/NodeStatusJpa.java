@@ -1,6 +1,5 @@
 package com.tiza.web.devops.facade;
 
-import com.tiza.web.devops.dto.DevNode;
 import com.tiza.web.devops.dto.NodeStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +17,8 @@ public interface NodeStatusJpa extends JpaRepository<NodeStatus, Long> {
     @Query("select t from NodeStatus t where t.node.checkOn = 1")
     Page<NodeStatus> findByNodeCheckOn(Pageable pageable);
 
-    NodeStatus findByNodeHost(String ip);
+    NodeStatus findByNodeId(Long id);
 
     @Transactional
-    void deleteByNode(DevNode node);
+    void deleteByNodeId(Long id);
 }

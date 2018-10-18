@@ -2,10 +2,10 @@ package com.tiza.web.devops;
 
 import com.tiza.support.model.ExecuteOut;
 import com.tiza.support.util.RemoteUtil;
-import com.tiza.web.devops.dto.Deploy;
+import com.tiza.web.deploy.dto.Deploy;
+import com.tiza.web.deploy.facade.DeployJpa;
 import com.tiza.web.devops.dto.DevNode;
 import com.tiza.web.devops.dto.NodeStatus;
-import com.tiza.web.devops.facade.DeployJpa;
 import com.tiza.web.devops.facade.DevNodeJpa;
 import com.tiza.web.devops.facade.NodeStatusJpa;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,8 +66,20 @@ public class ClusterController {
             return modify(devNode);
         }
 
-        String path = environment.getProperty("upload.monitor.target") + environment.getProperty("upload.monitor.jar");
-        devNode.setPath(path);
+        org.springframework.core.io.Resource monitorRes =
+                new UrlResource(environment.getProperty("upload.monitor.source"));
+        File file = monitorRes.getFile();
+        if (file.isDirectory()) {
+            String dir = file.getName();
+            File[] files = file.listFiles();
+            for (File f : files) {
+                if (f.getName().endsWith(".jar")) {
+                    String path = environment.getProperty("upload.monitor.target") + dir + "/" + f.getName();
+                    devNode.setPath(path);
+                    break;
+                }
+            }
+        }
         devNode.setCreateTime(new Date());
         devNode = devNodeJpa.save(devNode);
         if (devNode == null) {
@@ -105,27 +117,23 @@ public class ClusterController {
         // SCP 远程拷贝
         if (temp.getCheckOn() == 1) {
             remoteCopy(temp);
-        }else {
-            Deploy deploy = new Deploy();
-            deploy.setPath(temp.getPath());
-            deploy.setNode(temp);
-            RemoteUtil.run(deploy, 0);
+        } else {
+            RemoteUtil.run(temp, temp.getPath(), null, 0);
         }
 
         return 1;
     }
 
     @DeleteMapping("/node/{id}")
-    public Integer note(@PathVariable long id) {
-        DevNode node = devNodeJpa.findById(id).get();
-        List<Deploy> deployList = deployJpa.findByNode(node);
-        NodeStatus status = nodeStatusJpa.findByNodeHost(node.getHost());
+    public Integer node(@PathVariable long id) {
+        List<Deploy> deployList = deployJpa.findByNodeId(id);
+        NodeStatus status = nodeStatusJpa.findByNodeId(id);
         // 有正在运行的程序, 无法删除
-        if (CollectionUtils.isNotEmpty(deployList) || status.getStatus() == 1){
+        if (CollectionUtils.isNotEmpty(deployList) || status.getStatus() == 1) {
 
             return 0;
         }
-        nodeStatusJpa.deleteByNode(node);
+        nodeStatusJpa.deleteByNodeId(id);
         devNodeJpa.deleteById(id);
 
         return 1;
@@ -135,15 +143,11 @@ public class ClusterController {
     public Map executeJar(@PathVariable long id, @PathVariable int status) {
         DevNode node = devNodeJpa.findById(id).get();
 
-        Deploy deploy = new Deploy();
-        deploy.setPath(node.getPath());
-        deploy.setNode(node);
-        ExecuteOut out = RemoteUtil.run(deploy, status);
-
+        ExecuteOut out = RemoteUtil.run(node, node.getPath(), null, status);
         Map respMap = new HashMap();
-        if (out.isOk()){
+        if (out.isOk()) {
             respMap.put("status", 1);
-        }else {
+        } else {
             respMap.put("status", 0);
             if (out != null) {
                 respMap.put("error", out.getOutErr());
@@ -161,15 +165,12 @@ public class ClusterController {
 
         // 获取程序运行状态
         for (NodeStatus status : statusPage.getContent()) {
-            Deploy deploy = new Deploy();
             DevNode node = status.getNode();
-            deploy.setPath(node.getPath());
-            deploy.setNode(node);
-            ExecuteOut out = RemoteUtil.run(deploy, -1);
+            ExecuteOut out = RemoteUtil.run(node, node.getPath(), null, -1);
             if (out.getResult() == 0 &&
-                    StringUtils.isNotEmpty(out.getOutStr())){
+                    StringUtils.isNotEmpty(out.getOutStr())) {
                 status.setStatus(1);
-            }else {
+            } else {
                 status.setStatus(0);
             }
 

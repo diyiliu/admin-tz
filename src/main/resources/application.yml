@@ -10,8 +10,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 50MB
+      max-file-size: 100MB
+      max-request-size: 500MB
 
   mvc:
     static-path-pattern: '/assets/**'
@@ -35,11 +35,12 @@ logging:
 
 # 文件路径
 upload:
+  temp: file:./upload/temp/
   user: file:./upload/user/
+  deploy-dir: /opt/java/job/
   monitor:
    source: file:./upload/monitor/
-   target: /opt/java
-   jar: /monitor/monitor-client.jar
+   target: /opt/java/
 
 # shiro
 shiro:

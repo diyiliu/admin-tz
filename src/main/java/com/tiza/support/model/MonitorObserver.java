@@ -64,7 +64,7 @@ public class MonitorObserver implements IMsgObserver {
             devNodeJpa.save(node);
         }
 
-        NodeStatus status = nodeStatusJpa.findByNodeHost(host);
+        NodeStatus status = nodeStatusJpa.findByNodeId(node.getId());
         if (status != null) {
 
             status.setCpuUsage(new BigDecimal(monitorInfo.getCpuLoad() * 100).intValue());

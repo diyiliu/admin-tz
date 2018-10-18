@@ -2,9 +2,9 @@ package com.tiza.support.util;
 
 import ch.ethz.ssh2.*;
 import com.tiza.support.model.ExecuteOut;
-import com.tiza.web.devops.dto.Deploy;
 import com.tiza.web.devops.dto.DevNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,8 +22,7 @@ import java.util.Properties;
 @Slf4j
 public class RemoteUtil {
 
-    public static ExecuteOut run(Deploy deploy, int status) {
-        String path = deploy.getPath();
+    public static ExecuteOut run(DevNode devNode, String path, String args, int status) {
         String dir = path.substring(0, path.lastIndexOf("/"));
         String cmd = "";
         // 启动
@@ -31,11 +30,11 @@ public class RemoteUtil {
             cmd += "source /etc/profile \n " +
                     "cd " + dir + "\n ";
 
-            if (StringUtils.isNotEmpty(deploy.getArgs())) {
+            if (StringUtils.isNotEmpty(args)) {
 
-                cmd += deploy.getArgs();
+                cmd += args;
             } else {
-                cmd += "nohup java -jar " + deploy.getPath() + " >log.txt 2>&1 &";
+                cmd += "nohup java -jar " + path + " >log.txt 2>&1 &";
             }
         }
         // 停止
@@ -50,7 +49,6 @@ public class RemoteUtil {
             cmd = "ps -ef|grep " + proc + "* | grep -v 'grep'";
         }
 
-        DevNode devNode = deploy.getNode();
         ExecuteOut out = null;
         try {
             Connection connection = new Connection(devNode.getHost(), devNode.getPort());
@@ -98,29 +96,21 @@ public class RemoteUtil {
     private static void transferFile(Connection connection, File file, String targetDir, Map config) throws IOException {
         String fileName = file.getName();
 
-        ExecuteOut out;
         if (file.isDirectory()) {
-            String cmd = "mkdir -p " + targetDir + "/" + fileName;
-            out = execCommand(connection, cmd);
-            if (out.isOk()) {
-
-                File[] files = file.listFiles();
-                for (File f : files) {
-                    String target = targetDir + "/" + fileName;
-                    transferFile(connection, f, target, config);
-                }
-            } else {
-                log.error("执行 SSH 指令[{}]异常!", cmd);
+            File[] files = file.listFiles();
+            for (File f : files) {
+                String dir = targetDir + "/" + fileName;
+                transferFile(connection, f, dir, config);
             }
 
             return;
         }
 
-        String cmd = "cd " + targetDir + "; rm " + fileName + "; touch " + fileName;
+        String cmd = "mkdir -p " + targetDir + ";cd " + targetDir + ";rm " + fileName + "; touch " + fileName;
         execCommand(connection, cmd);
 
         // 修改配置文件信息
-        if (fileName.equals("config.properties")) {
+        if (MapUtils.isNotEmpty(config) && fileName.equals("config.properties")) {
             InputStream inputStream = new FileInputStream(file);
             Properties properties = new Properties();
             properties.load(inputStream);

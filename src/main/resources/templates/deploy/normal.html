@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>帝一流</title>
+
+    <link th:href="@{/assets/css/plug.css}" rel="stylesheet">
+</head>
+
+<body>
+<div layout:fragment="breadcrumb" class="page-breadcrumb">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h4 class="page-title">常规任务</h4>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="#">Plug</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Normal</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div layout:fragment="container" class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group-justified" role="group" id="toolbar">
+                        <button type="button" class="btn btn-info" id="addItem" data-title="创建任务">
+                            <i class="fa fa-fw fa-plus"></i> 创建
+                        </button>
+                    </div>
+                    <table id="myTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proModalTitle">创建任务</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form" id="myForm">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group row">
+                            <label for="selNode" class="col-sm-2 control-label text-right col-form-label">主机</label>
+                            <div class="col-sm-10">
+                                <select id="selNode" name="node.id" data-placeholder="选择"
+                                        class="form-control chosen-select">
+                                    <option value=""></option>
+                                    <option th:each="node:${nodes}"
+                                            th:value="${node.id}" th:text="${node.name}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label text-right col-form-label">文件</label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <input type="file" class="hide" multiple id="file">
+                                    <div class="form-control tag">
+                                        <input type="text" id="fileTag" placeholder="上传文件">
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-info" id="open" data-title="创建程序">
+                                            <i class="mdi mdi-import"></i> 选择
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 control-label text-right col-form-label">名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="path" class="col-sm-2 control-label text-right col-form-label">路径</label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="filePrefix" th:text="|${deployDir}normal/|"></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="path" name="path" placeholder="路径">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="jarFile">*.jar</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="args" class="col-sm-2 control-label text-right col-form-label">参数</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" name="args" id="args" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="submitJar">保存</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<div layout:fragment="allJs">
+    <script th:inline="javascript">
+        var $table = DP.getTable();
+
+        $(function () {
+            DP.init({
+                addAfter: function () {
+                    $('#selNode').chosen("destroy");
+                    $('#selNode').chosen({
+                        disable_search: true
+                    });
+                }
+            });
+
+            var tableHeight = $("div.container-fluid").height() - 60;
+            DP.table.init({
+                height: tableHeight,
+                classes: 'table table-no-bordered',
+                url: /*[[@{/deploy/normalList}]]*/,
+                columns: [
+                    {
+                        field: 'name',
+                        title: '名称'
+                    },
+                    {
+                        field: 'node',
+                        title: '主机',
+                        formatter: function (value, row, index) {
+
+                            return value.name;
+                        }
+                    },
+                    {
+                        field: 'jarFile',
+                        title: '程序'
+                    },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        formatter: function (value, row, index) {
+                            if (value == 1) {
+
+                                return '<span class="badge badge-success">运行中</span>';
+                            }
+
+                            if (value == 0) {
+
+                                return '<span class="badge badge-secondary">停止</span>';
+                            }
+
+                            return '<span class="badge badge-danger">异常</span>';
+                        }
+                    },
+                    {
+                        field: 'uptimeStr',
+                        title: '运行时间'
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间'
+                    },
+                    {
+                        field: 'status',
+                        title: '操作',
+                        formatter: function (value, row, index) {
+                            if (value == 1) {
+                                return '<a href="javascript:void(0);" onclick="toStop(this);" data-id="' + row.id + '" title="停止">' +
+                                    '<i class="text-warning mdi mdi-power font-20"></a>';
+                            }
+
+                            var url = /*[[@{/deploy/del/}]]*/;
+                            return '<a href="javascript:void(0);" onclick="toStart(this);" data-id="' + row.id + '" title="启动">' +
+                                '<i class="text-success mdi mdi-replay font-20"></i></a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + url + '" data-id="' + row.id + '" title="删除">' +
+                                '<i class="text-danger mdi mdi-close font-20"></i></a>';
+                        }
+                    }
+                ]
+            });
+
+            var fileArray = new Array();
+            var $modal = $('#myModal');
+            $('#submitJar').on('click', function () {
+                var jar = $('#jarFile').text();
+                if (jar.indexOf('*') > -1){
+                    swal("上传文件必须包含JAR!", "", "warning");
+                    return;
+                }
+                if (fileArray.length < 1){
+                    swal("最少上传一个可执行文件!", "当前仅支持 .jar", "warning");
+                    return
+                }
+
+                var formData = new FormData($('#myForm')[0]);
+                formData.append('dir', $('#filePrefix').text() + $('#path').val());
+                formData.append('jarFile', $('#jarFile').text());
+                //追加文件数据
+                for (var i = 0; i < fileArray.length; i++) {
+                    formData.append('files', fileArray[i]);
+                }
+
+                $.ajax({
+                    type: 'post',
+                    url: /*[[@{/deploy/normal/}]]*/,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        $('.fakeloader').fadeIn();
+                    },
+                    complete: function(){
+                        $('.fakeloader').fadeOut();
+                    },
+                    success: function (result) {
+                        if (result == 1) {
+                            alertTip('success', '保存成功');
+                            $modal.modal('hide');
+                            $table.bootstrapTable("refresh");
+                        } else {
+                            alertTip('error', '保存失败');
+                        }
+                    },
+                    error: function () {
+                        alertTip('error', '保存失败');
+                    }
+                });
+            });
+
+            $modal.on('show.bs.modal', function (event) {
+                $('#fileTag').tagsInput({
+                    defaultText: '',
+                    width: 'auto',
+                    height: 35,
+                    onRemoveTag: function (tag) {
+                        fileArray.removeFile(tag);
+                    }
+                });
+                $('#fileTag_tag').attr("readonly", true);
+            });
+            $('#open').on('click', function () {
+                if (fileArray.length > 1){
+                    swal("最多上传两个文件!", "", "warning");
+                    return
+                }
+                $('#file').click();
+            });
+            $('#file').on('change', function () {
+                var temp = $.extend(true, {}, this.files);
+                if (temp.length > 2){
+                    swal("最多上传两个文件!", "", "warning");
+                    return
+                }
+                for (var i = 0; i < temp.length; i++) {
+                    var t = temp[i];
+                    fileArray.push(t);
+                    var name = t.name;
+                    $('#fileTag').addTag(name);
+                    if (name.indexOf('.jar') > -1) {
+                        $('#jarFile').text(name);
+                    }
+                }
+                // 清空文件
+                this.value = '';
+            });
+        });
+
+        Array.prototype.indexOfFile = function (val) {
+            for (var i = 0; i < this.length; i++) {
+                var file = this[i];
+                if (file.name == val) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+        Array.prototype.removeFile = function (val) {
+            var index = this.indexOfFile(val);
+            if (index > -1) {
+                this.splice(index, 1);
+            }
+        };
+
+        function toStart(a) {
+            var id = $(a).data('id');
+            var path = /*[[@{/deploy/exec/1/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: path + id,
+                dataType: "json",
+                beforeSend: function () {
+                    $('.fakeloader').fadeIn();
+                },
+                complete: function () {
+                    $('.fakeloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '程序启动成功');
+                        $table.bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '程序启动失败');
+                    }
+                }, error: function () {
+
+                    alertTip('error', '程序启动失败')
+                }
+            });
+        };
+
+        function toStop(a) {
+            var id = $(a).data('id');
+            var path = /*[[@{/deploy/exec/0/}]]*/;
+            $.ajax({
+                type: 'put',
+                url: path + id,
+                dataType: "json",
+                beforeSend: function () {
+                    $('.fakeloader').fadeIn();
+                },
+                complete: function () {
+                    $('.fakeloader').fadeOut();
+                },
+                success: function (result) {
+                    if (result.status == 1) {
+                        alertTip('success', '程序停止成功');
+                        $table.bootstrapTable("refresh");
+                    } else {
+                        alertTip('error', '程序停止失败');
+                    }
+                }, error: function () {
+
+                    alertTip('error', '程序停止失败')
+                }
+            });
+        };
+    </script>
+</div>
+</body>
+</html>

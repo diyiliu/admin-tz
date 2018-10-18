@@ -1,0 +1,18 @@
+div.tagsinput{
+    border: none;
+}
+
+div.tagsinput input{
+    padding: 0px;
+    margin: 0px;
+}
+
+div.tagsinput span.tag{
+    padding: 1px 5px;
+    margin: 0px;
+    margin-right: 5px;
+}
+
+div.form-control.tag{
+    padding: 0px;
+}

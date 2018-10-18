@@ -47,6 +47,7 @@ public class DevNode {
 
     private String pwd;
 
+    /** 监控程序路径 **/
     private String path;
 
     private Integer checkOn;
