@@ -1,6 +1,7 @@
 package com.tiza.web.deploy;
 
 import com.tiza.support.model.ExecuteOut;
+import com.tiza.support.util.DateUtil;
 import com.tiza.support.util.RemoteUtil;
 import com.tiza.web.deploy.dto.Deploy;
 import com.tiza.web.deploy.facade.DeployJpa;
@@ -72,7 +73,6 @@ public class DeployController {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
         Page<Deploy> deployPage = deployJpa.findAll(pageable);
 
-
         // 获取程序运行状态
         for (Deploy deploy : deployPage.getContent()) {
             String path = deploy.getDir() + "/" + deploy.getJarFile();
@@ -83,8 +83,9 @@ public class DeployController {
 
                 deploy.setStatus(1);
 
+                long time = System.currentTimeMillis() - deploy.getUptime().getTime();
+                deploy.setUptimeStr(DateUtil.formatMilliseconds(time));
             }else {
-                deploy.setUptimeStr("");
                 if (StringUtils.isEmpty(out.getOutErr())){
                     deploy.setStatus(0);
                 }else {
