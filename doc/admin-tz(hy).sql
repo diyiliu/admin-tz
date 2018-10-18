@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : local
-Source Server Version : 50636
-Source Host           : localhost:3306
+Source Server         : 阿里云
+Source Server Version : 50173
+Source Host           : 106.15.89.145:3306
 Source Database       : admin-tz
 
 Target Server Type    : MYSQL
-Target Server Version : 50636
+Target Server Version : 50173
 File Encoding         : 65001
 
-Date: 2018-10-18 13:40:46
+Date: 2018-10-18 15:50:03
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -37,8 +37,6 @@ CREATE TABLE `dev_deploy` (
 -- ----------------------------
 -- Records of dev_deploy
 -- ----------------------------
-INSERT INTO `dev_deploy` VALUES ('23', '16', '0', '测试', '/opt/java/job/normal/chat', 'chat-server.jar', '', '1', '2018-10-18 13:28:39', '2018-10-18 13:40:28', '2018-10-18 11:29:21');
-INSERT INTO `dev_deploy` VALUES ('24', '10', '0', '新能源网关', '/opt/java/job/normal/estar', 'estar-gw.jar', '', '1', '2018-10-18 13:06:00', '2018-10-18 13:40:28', '2018-10-18 13:05:39');
 
 -- ----------------------------
 -- Table structure for dev_manifest
@@ -82,16 +80,19 @@ CREATE TABLE `dev_node` (
   `check_on` int(11) DEFAULT NULL COMMENT '开启监控',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='集群节点';
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 COMMENT='集群节点';
 
 -- ----------------------------
 -- Records of dev_node
 -- ----------------------------
-INSERT INTO `dev_node` VALUES ('10', '测试181', null, 'Linux', '1', '2', '36', '192.168.1.181', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-16 13:52:13');
-INSERT INTO `dev_node` VALUES ('12', '测试183', null, 'Linux', '1', '4', '27', '192.168.1.183', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-16 14:33:25');
-INSERT INTO `dev_node` VALUES ('13', '测试184', null, 'Linux', '1', '4', '27', '192.168.1.184', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-16 14:33:39');
-INSERT INTO `dev_node` VALUES ('16', '测试182', null, 'Linux', '1', '2', '36', '192.168.1.182', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 10:56:01');
-INSERT INTO `dev_node` VALUES ('17', '测试185', null, 'Linux', '1', '4', '27', '192.168.1.185', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 11:28:05');
+INSERT INTO `dev_node` VALUES ('19', '29', null, 'Linux', '16', '31', '264', '192.168.1.29', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 14:06:44');
+INSERT INTO `dev_node` VALUES ('20', '28', null, 'Linux', '16', '31', '264', '192.168.1.28', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 15:21:15');
+INSERT INTO `dev_node` VALUES ('21', '21', null, 'Linux', '16', '31', '1938', '192.168.1.21', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 15:22:17');
+INSERT INTO `dev_node` VALUES ('22', '22', null, 'Linux', '16', '31', '1938', '192.168.1.22', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 15:22:34');
+INSERT INTO `dev_node` VALUES ('23', '26', null, 'Linux', '16', '63', '1921', '192.168.1.26', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 15:31:16');
+INSERT INTO `dev_node` VALUES ('24', '27', null, 'Linux', '16', '63', '1925', '192.168.1.27', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '1', '2018-10-18 15:31:28');
+INSERT INTO `dev_node` VALUES ('25', '23', null, 'Linux', '16', '31', '18880', '192.168.1.23', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '0', '2018-10-18 15:32:01');
+INSERT INTO `dev_node` VALUES ('26', '24', null, 'Linux', '16', '31', '18880', '192.168.1.24', '22', 'root', '123456', '/opt/java/monitor/monitor-client.jar', '0', '2018-10-18 15:32:14');
 
 -- ----------------------------
 -- Table structure for dev_node_status
@@ -102,21 +103,24 @@ CREATE TABLE `dev_node_status` (
   `node_id` int(50) DEFAULT NULL,
   `cpu_usage` int(11) DEFAULT NULL,
   `memory_usage` int(11) DEFAULT NULL,
-  `process_info` varchar(500) DEFAULT NULL,
-  `disk_info` varchar(500) DEFAULT NULL,
+  `process_info` longtext,
+  `disk_info` longtext,
   `status` int(11) DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COMMENT='节点实时状态信息';
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COMMENT='节点实时状态信息';
 
 -- ----------------------------
 -- Records of dev_node_status
 -- ----------------------------
-INSERT INTO `dev_node_status` VALUES ('6', '10', '8', '15', ' java -jar /opt/java/monitor/monitor-client.jar: 5.6%, java -jar /opt/java/job/normal/estar/estar-gw.jar: 5.1%, sshd: root@notty : 0.2%', '/dev/mapper/vg_dyl181-lv_root: 13%,/dev/sda1: 13%', '1', '2018-10-18 13:40:37');
-INSERT INTO `dev_node_status` VALUES ('8', '12', '4', '6', ' java -jar /opt/java/monitor/monitor-client.jar: 3.2%, sshd: root@notty : 0.1%, hald: 0.0%', '/dev/mapper/vg_dyl183-lv_root: 14%,/dev/sda1: 13%', '1', '2018-10-18 13:40:36');
-INSERT INTO `dev_node_status` VALUES ('9', '13', '4', '6', ' java -jar /opt/java/monitor/monitor-client.jar: 2.8%, sshd: root@notty : 0.1%, hald: 0.0%', '/dev/mapper/vg_dyl184-lv_root: 14%,/dev/sda1: 13%', '1', '2018-10-18 13:40:46');
-INSERT INTO `dev_node_status` VALUES ('12', '16', '5', '14', ' java -jar /opt/java/monitor/monitor-client.jar: 5.9%, java -jar /opt/java/job/normal/chat/chat-server.jar: 3.9%, sshd: root@notty : 0.2%', '/dev/mapper/vg_dyl182-lv_root: 12%,/dev/sda1: 13%', '1', '2018-10-18 13:40:36');
-INSERT INTO `dev_node_status` VALUES ('13', '17', '11', '5', ' java -jar /opt/java/monitor/monitor-client.jar: 2.3%, sshd: root@notty : 0.1%, hald: 0.0%', '/dev/mapper/vg_dyl185-lv_root: 14%,/dev/sda1: 13%', '0', '2018-10-18 11:28:53');
+INSERT INTO `dev_node_status` VALUES ('15', '19', '1', '25', 'cn.com.tiza.tstar.importer.hadoop.HadoopImporter: 7.6%,org.apache.hadoop.hdfs.server.namenode.NameNode: 2.3%, java -jar /tstar/tmp/obd-quartz.jar -p prod: 1.4%', '/dev/mapper/centos-root: 7%,/dev/sda1: 17%', '1', '2018-10-18 15:49:57');
+INSERT INTO `dev_node_status` VALUES ('16', '20', '2', '25', '9999: 3.1%,start: 2.5%,org.apache.hadoop.hdfs.server.namenode.NameNode: 2.0%', '/dev/mapper/centos-root: 9%,/dev/sda1: 17%', '1', '2018-10-18 15:49:59');
+INSERT INTO `dev_node_status` VALUES ('17', '21', '1', '20', 'start: 5.7%,037bb6f5-c3c6-43d2-88f9-c2f4f1295bb7: 3.9%,/tstar/kafka/config/server.properties: 3.5%', '/dev/mapper/centos-root: 3%,/dev/sda1: 17%,/dev/sdb1: 2%', '1', '2018-10-18 15:35:52');
+INSERT INTO `dev_node_status` VALUES ('18', '22', '2', '28', 'start: 8.0%,gateway-estar_gb32960.xml: 5.4%,/tstar/kafka/config/server.properties: 3.5%', '/dev/mapper/centos-root: 3%,/dev/sda1: 17%,/dev/sdb1: 2%', '1', '2018-10-18 15:50:00');
+INSERT INTO `dev_node_status` VALUES ('19', '23', '0', '18', 'ora_dbw0_hyora: 4.7%,ora_dbw1_hyora: 4.7%,ora_dbw2_hyora: 4.6%', '/dev/sda3: 8%,/dev/sdb1: 3%,/dev/sda1: 16%', '1', '2018-10-18 15:50:03');
+INSERT INTO `dev_node_status` VALUES ('20', '24', '1', '40', 'oraclehyora (LOCAL=NO): 25.1%,oraclehyora (LOCAL=NO): 25.0%,oraclehyora (LOCAL=NO): 24.7%', '/dev/mapper/centos-root: 9%,/dev/sdb1: 5%,/dev/sda1: 18%', '1', '2018-10-18 15:35:50');
+INSERT INTO `dev_node_status` VALUES ('21', '25', '1', '21', 'start: 10.2%,316a7879-6265-4182-99a3-d2a7874e318b: 2.3%,org.apache.hadoop.hdfs.server.datanode.DataNode: 1.1%', '/dev/mapper/centos-root: 3%,/dev/sdi1: 9%,/dev/sdc1: 9%', '1', '2018-10-18 15:33:37');
+INSERT INTO `dev_node_status` VALUES ('22', '26', '1', '23', 'start: 8.2%,152ec854-6806-4b2e-9149-488678456324: 3.1%,a0d9b9c2-4e70-4b0a-8a97-f1b4f2397f60: 3.0%', '/dev/mapper/centos-root: 13%,/dev/sdd1: 9%,/dev/sdb1: 10%', '1', '2018-10-18 15:33:51');
 
 -- ----------------------------
 -- Table structure for rel_user_role
@@ -251,5 +255,5 @@ CREATE TABLE `sys_user` (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES ('1', 'admin', 'b722097ee08ea4c20eae7958639c839e', 'b9f1d5d2b65231cd016e6d84979f7078', '管理员', '87166669@dyl.com', '18086776731', null, null, null, null, 'icon1006822817203197796.jpg', '积极进取，持之以恒。', '2020-05-20 00:00:00', '1145', '0:0:0:0:0:0:0:1', '2018-10-18 13:31:35');
+INSERT INTO `sys_user` VALUES ('1', 'admin', 'b722097ee08ea4c20eae7958639c839e', 'b9f1d5d2b65231cd016e6d84979f7078', '管理员', '87166669@dyl.com', '18086776731', null, null, null, null, 'icon1006822817203197796.jpg', '积极进取，持之以恒。', '2020-05-20 00:00:00', '1152', '218.3.247.226', '2018-10-18 15:37:49');
 INSERT INTO `sys_user` VALUES ('27', 'test', '8d1e533914f577ec50f478973fcd7245', 'dd06bb22476ddb60057daf36ba5ffe58', '测试', '88776699@qq.com', '88776699', null, '2018-09-13 14:11:29', 'admin', '1', 'icon8735320946401041351.jpg', null, '2019-09-12 14:11:19', '3', '0:0:0:0:0:0:0:1', '2018-10-18 13:30:10');

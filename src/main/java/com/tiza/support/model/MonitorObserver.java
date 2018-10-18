@@ -76,7 +76,6 @@ public class MonitorObserver implements IMsgObserver {
                 processInfoList = linuxProcess(node);
             }
             if (CollectionUtils.isNotEmpty(processInfoList)) {
-
                 String info = "";
                 for (int i = 0; i < processInfoList.size(); i++) {
                     if (i > 2) {
@@ -135,6 +134,10 @@ public class MonitorObserver implements IMsgObserver {
                         String info = array[i];
                         String content = info.substring(0, index).replaceAll("\\s+", " ");
                         String name = info.substring(index);
+                        if (name.length() > 50){
+                            int split = name.lastIndexOf(" ");
+                            name = name.substring(split + 1);
+                        }
 
                         String[] items = content.split(" ");
                         String pid = items[1];
