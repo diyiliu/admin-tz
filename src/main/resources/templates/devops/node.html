@@ -90,13 +90,14 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="checkOn" class="col-sm-2 control-label text-right col-form-label">监控</label>
+                            <label for="checkOn" class="col-sm-2 control-label text-right col-form-label">开启监控</label>
                             <div class="col-sm-10">
-                                <input type="hidden" id="checkOn" name="checkOn" value="0">
                                 <div class="form-control" style="border: 0px;box-shadow: none">
-                                    <a href="javascript:void(0);" id="isCheck">
-                                        <i class="font-20 mdi text-secondary mdi-close-network"></i>
-                                    </a>
+                                    <label class="switch switch-default switch-success-outline-alt mr-2">
+                                        <input type="checkbox" class="switch-input" id="checkOn" name="checkOn" value="1">
+                                        <span class="switch-label"></span>
+                                        <span class="switch-handle"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -119,9 +120,7 @@
             DP.init({
                 addBefore: function () {
                     $('#id').val('');
-                    $('#checkOn').val(0);
-                    $('#isCheck').find('i').removeClass('mdi-access-point-network').removeClass('text-success')
-                        .addClass('mdi-close-network').addClass('text-secondary');
+                    $('#checkOn')[0].checked = false;
                 },
                 editBefore: function (i) {
                     var row = DP.getTable().bootstrapTable('getData')[i];
@@ -135,13 +134,9 @@
 
                     // 是否开启监控
                     if (row['checkOn'] == 1) {
-                        $('#checkOn').val(1);
-                        $('#isCheck').find('i').removeClass('mdi-close-network').removeClass('text-secondary')
-                            .addClass('mdi-access-point-network').addClass('text-success');
+                        $('#checkOn')[0].checked = true;
                     }else {
-                        $('#checkOn').val(0);
-                        $('#isNav').find('i').removeClass('mdi-access-point-network').removeClass('text-success')
-                            .addClass('mdi-close-network').addClass('text-secondary');
+                        $('#checkOn')[0].checked = false;
                     }
                 }
             });
@@ -201,18 +196,6 @@
                         }
                     }
                 ]
-            });
-
-            $('#isCheck').on('click',function () {
-                var i = $('#checkOn').val();
-                if (++i % 2 == 0){
-                    $(this).find('i').removeClass('mdi-access-point-network').removeClass('text-success')
-                        .addClass('mdi-close-network').addClass('text-secondary');
-                } else {
-                    $(this).find('i').removeClass('mdi-close-network').removeClass('text-secondary')
-                        .addClass('mdi-access-point-network').addClass('text-success');
-                }
-                $('#checkOn').val(i % 2);
             });
         });
     </script>

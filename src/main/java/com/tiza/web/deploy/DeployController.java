@@ -4,7 +4,9 @@ import com.tiza.support.model.ExecuteOut;
 import com.tiza.support.util.DateUtil;
 import com.tiza.support.util.RemoteUtil;
 import com.tiza.web.deploy.dto.Deploy;
+import com.tiza.web.deploy.dto.Schedule;
 import com.tiza.web.deploy.facade.DeployJpa;
+import com.tiza.web.deploy.facade.ScheduleJpa;
 import com.tiza.web.devops.dto.DevNode;
 import com.tiza.web.devops.facade.DevNodeJpa;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,8 @@ public class DeployController {
     @Resource
     private DevNodeJpa devNodeJpa;
 
+    @Resource
+    private ScheduleJpa scheduleJpa;
 
     @PostMapping("/normal")
     public Integer saveNormal(Deploy deploy, MultipartFile[] files) throws Exception {
@@ -54,46 +58,39 @@ public class DeployController {
         }
 
         DevNode node = devNodeJpa.findById(deploy.getNode().getId()).get();
-        String target = deploy.getDir();
-        org.springframework.core.io.Resource tempRes =
-                new UrlResource(environment.getProperty("upload.temp"));
-        for (MultipartFile file : files) {
-            File temp = new File(tempRes.getFile().getAbsolutePath() + "/" + file.getOriginalFilename());
-            file.transferTo(temp);
-            RemoteUtil.copyFile(node, temp, target, null);
-
-            temp.delete();
-        }
+        copyFiles(node, deploy.getDir(), files);
 
         return 1;
     }
 
-    @PostMapping("/normalList")
-    public Map normalList(@RequestParam int pageNo, @RequestParam int pageSize) {
+    @PostMapping("/list/{type}")
+    public Map list(@PathVariable int type, @RequestParam int pageNo, @RequestParam int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
-        Page<Deploy> deployPage = deployJpa.findAll(pageable);
+        Page<Deploy> deployPage = deployJpa.findByType(type, pageable);
 
-        // 获取程序运行状态
-        for (Deploy deploy : deployPage.getContent()) {
-            String path = deploy.getDir() + "/" + deploy.getJarFile();
+        if (type == 0) {
+            // 获取程序运行状态
+            for (Deploy deploy : deployPage.getContent()) {
+                String path = deploy.getDir() + "/" + deploy.getJarFile();
 
-            ExecuteOut out = RemoteUtil.run(deploy.getNode(), path, deploy.getArgs(), -1);
-            if (out.getResult() == 0 &&
-                    StringUtils.isNotEmpty(out.getOutStr())){
+                ExecuteOut out = RemoteUtil.run(deploy.getNode(), path, deploy.getArgs(), -1);
+                if (out.getResult() == 0 &&
+                        StringUtils.isNotEmpty(out.getOutStr())) {
 
-                deploy.setStatus(1);
-
-                long time = System.currentTimeMillis() - deploy.getUptime().getTime();
-                deploy.setUptimeStr(DateUtil.formatMilliseconds(time));
-            }else {
-                if (StringUtils.isEmpty(out.getOutErr())){
-                    deploy.setStatus(0);
-                }else {
-                    deploy.setStatus(-1);
+                    deploy.setStatus(1);
+                    long time = System.currentTimeMillis() - deploy.getUptime().getTime();
+                    deploy.setUptimeStr(DateUtil.formatMilliseconds(time));
+                } else {
+                    if (StringUtils.isEmpty(out.getOutErr())) {
+                        deploy.setStatus(0);
+                    } else {
+                        deploy.setStatus(-1);
+                    }
                 }
+
+                deploy.setUpdateTime(new Date());
+                deployJpa.save(deploy);
             }
-            deploy.setUpdateTime(new Date());
-            deployJpa.save(deploy);
         }
 
         Map respMap = new HashMap();
@@ -133,4 +130,59 @@ public class DeployController {
         return respMap;
     }
 
+    /* ================================  计划任务  =================================== */
+    @PostMapping("/cron")
+    public Integer saveCron(Deploy deploy, MultipartFile[] files) throws Exception {
+        deploy.setType(1);
+        deploy.setCreateTime(new Date());
+        deploy = deployJpa.save(deploy);
+        if (deploy == null) {
+
+            return 0;
+        }
+
+        Schedule schedule = deploy.getSchedule();
+        schedule.setDeploy(deploy);
+        schedule.setCreateTime(new Date());
+        schedule = scheduleJpa.save(schedule);
+        if (schedule == null) {
+
+            return 0;
+        }
+
+        DevNode node = devNodeJpa.findById(deploy.getNode().getId()).get();
+        copyFiles(node, deploy.getDir(), files);
+
+        return 1;
+    }
+
+
+    @DeleteMapping("/cron/{id}")
+    public Integer delCron(@PathVariable long id) {
+        Schedule schedule = scheduleJpa.findById(id).get();
+        scheduleJpa.delete(schedule);
+
+        return 1;
+    }
+
+    /**
+     * 远程拷贝文件
+     *
+     * @param node
+     * @param target
+     * @param files
+     * @throws Exception
+     */
+    private void copyFiles(DevNode node, String target, MultipartFile[] files) throws Exception {
+        org.springframework.core.io.Resource tempRes =
+                new UrlResource(environment.getProperty("upload.temp"));
+
+        for (MultipartFile file : files) {
+            File temp = new File(tempRes.getFile().getAbsolutePath() + "/" + file.getOriginalFilename());
+            file.transferTo(temp);
+            RemoteUtil.copyFile(node, temp, target, null);
+
+            temp.delete();
+        }
+    }
 }

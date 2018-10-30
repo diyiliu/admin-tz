@@ -2,6 +2,7 @@ package com.tiza.web.deploy.dto;
 
 import com.tiza.web.devops.dto.DevNode;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -24,6 +25,10 @@ public class Deploy {
     @ManyToOne
     @JoinColumn(name = "node_id", referencedColumnName = "id")
     private DevNode node;
+
+    @Nullable
+    @OneToOne(mappedBy = "deploy", cascade = CascadeType.PERSIST)
+    private Schedule schedule;
 
     /** 程序类型(0: 常规任务; 1: 实时任务; 2: 离线任务;) **/
     private Integer type;

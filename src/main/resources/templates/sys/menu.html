@@ -133,11 +133,12 @@
                         <div class="form-group row">
                             <label for="code" class="col-sm-2 control-label text-right col-form-label">导航菜单</label>
                             <div class="col-sm-10">
-                                <input type="hidden" id="isMenu" value="0" name="isMenu">
                                 <div class="form-control" style="border: 0px;box-shadow: none">
-                                    <a href="javascript:void(0);" id="isNav">
-                                        <i class="font-20 mdi mdi-eye-off text-secondary"></i>
-                                    </a>
+                                    <label class="switch switch-default switch-success-outline-alt mr-2">
+                                        <input type="checkbox" class="switch-input" name="isMenu" id="isMenu" value="1">
+                                        <span class="switch-label"></span>
+                                        <span class="switch-handle"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -169,9 +170,7 @@
                     $('#pid').val(0);
                     $('#pids').val(0);
                     $('#pNode').val('');
-                    $('#isMenu').val(0);
-                    $('#isNav').find('i').removeClass('mdi-eye').removeClass('text-info')
-                        .addClass('mdi-eye-off').addClass('text-secondary');
+                    $('#isMenu')[0].checked = false;
                 },
                 editBefore: function (i) {
                     var menu = $table.bootstrapTable('getRowByUniqueId', i);
@@ -213,13 +212,9 @@
 
                     // 是否导航 选项
                     if (menu['isMenu'] == 1) {
-                        $('#isMenu').val(1);
-                        $('#isNav').find('i').removeClass('mdi-eye-off').removeClass('text-secondary')
-                            .addClass('mdi-eye').addClass('text-info');
+                        $('#isMenu')[0].checked = true;
                     }else {
-                        $('#isNav').find('i').removeClass('mdi-eye').removeClass('text-info')
-                            .addClass('mdi-eye-off').addClass('text-secondary');
-                        $('#isMenu').val(0);
+                        $('#isMenu')[0].checked = false;
                     }
                 }
             });
@@ -333,17 +328,6 @@
                     $('#pNode').val('');
                     $('#pid').val(0);
                 }
-            });
-
-            var i = 1;
-            $('#isNav').toggle(function () {
-                $(this).find('i').removeClass('mdi-eye-off').removeClass('text-secondary')
-                    .addClass('mdi-eye').addClass('text-info');
-                $('#isMenu').val(i++ % 2);
-            }, function () {
-                $(this).find('i').removeClass('mdi-eye').removeClass('text-info')
-                    .addClass('mdi-eye-off').addClass('text-secondary');
-                $('#isMenu').val(i++ % 2);
             });
         });
     </script>

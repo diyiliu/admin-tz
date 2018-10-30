@@ -14,7 +14,7 @@
 <div layout:fragment="breadcrumb" class="page-breadcrumb">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h4 class="page-title">常规任务</h4>
+            <h4 class="page-title">定时任务</h4>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -26,7 +26,7 @@
                         <li class="breadcrumb-item">
                             <a href="#">Plug</a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page">Normal</li>
+                        <li class="breadcrumb-item active" aria-current="page">Timer</li>
                     </ol>
                 </nav>
             </div>
@@ -89,6 +89,12 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="cron" class="col-sm-2 control-label text-right col-form-label">计划</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="cron" name="schedule.cron" placeholder="0 * * * * ?">
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="name" class="col-sm-2 control-label text-right col-form-label">名称</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="name" name="name" placeholder="名称">
@@ -99,7 +105,7 @@
                             <div class="col-sm-10">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text" id="filePrefix" th:text="|${deployDir}normal/|"></span>
+                                        <span class="input-group-text" id="filePrefix" th:text="|${deployDir}schedule/|"></span>
                                     </div>
                                     <input type="text" class="form-control" id="path" name="path" placeholder="路径">
                                     <div class="input-group-prepend">
@@ -112,6 +118,18 @@
                             <label for="args" class="col-sm-2 control-label text-right col-form-label">参数</label>
                             <div class="col-sm-10">
                                 <textarea class="form-control" name="args" id="args" rows="3" placeholder="引用路径参数请使用: $path. 例: java -jar $path"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="checkOn" class="col-sm-2 control-label text-right col-form-label">启动</label>
+                            <div class="col-sm-10">
+                                <div class="form-control" style="border: 0px;box-shadow: none">
+                                    <label class="switch switch-default switch-success-outline-alt mr-2">
+                                        <input type="checkbox" class="switch-input" id="checkOn" name="schedule.status" value="1">
+                                        <span class="switch-label"></span>
+                                        <span class="switch-handle"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -137,6 +155,7 @@
                     $('#selNode').chosen({
                         disable_search: true
                     });
+                    $('#checkOn')[0].checked = false;
                 }
             });
 
@@ -144,7 +163,7 @@
             DP.table.init({
                 height: tableHeight,
                 classes: 'table table-no-bordered',
-                url: /*[[@{/deploy/list/0}]]*/,
+                url: /*[[@{/deploy/list/1}]]*/,
                 columns: [
                     {
                         field: 'name',
@@ -163,49 +182,45 @@
                         title: '程序'
                     },
                     {
-                        field: 'status',
+                        field: 'schedule',
+                        title: '计划',
+                        formatter: function (value, row, index) {
+
+                            return value.cron;
+                        }
+                    },
+                    {
+                        field: 'schedule',
+                        title: '执行时间',
+                        align: 'center',
+                        formatter: function (value, row, index) {
+
+                            return '<span class="badge badge-pill badge-primary">' + value.executeTime + '</span>';
+                        }
+                    },
+                    {
+                        field: 'schedule',
                         title: '状态',
                         align: 'center',
                         formatter: function (value, row, index) {
-                            if (value == 1) {
+                            if (value.status == 1) {
 
-                                return '<span class="badge badge-success">运行中</span>';
+                                return '<span class="badge badge-success">启用</span>';
                             }
 
-                            if (value == 0) {
-
-                                return '<span class="badge badge-secondary">停止</span>';
-                            }
-
-                            return '<span class="badge badge-danger">异常</span>';
+                            return '<span class="badge badge-secondary">停用</span>';
                         }
                     },
                     {
-                        field: 'uptimeStr',
-                        title: '运行时长',
-                        align: 'center',
-                        formatter: function (value, row, index) {
-
-                            return '<span class="badge badge-pill badge-primary">' + value + '</span>';
-                        }
-                    },
-                    {
-                        field: 'createTime',
-                        title: '创建时间'
-                    },
-                    {
-                        field: 'status',
+                        field: 'schedule',
                         title: '操作',
                         formatter: function (value, row, index) {
-                            if (value == 1) {
-                                return '<a href="javascript:void(0);" onclick="toStop(this);" data-id="' + row.id + '" title="停止">' +
-                                    '<i class="text-warning mdi mdi-power font-20"></a>';
-                            }
-
-                            var url = /*[[@{/deploy/del/}]]*/;
-                            return '<a href="javascript:void(0);" onclick="toStart(this);" data-id="' + row.id + '" title="启动">' +
+                            var url = /*[[@{/deploy/cron/}]]*/;
+                            return  '<a href="javascript:void(0);" onclick="toStart(this);" data-id="' + row.id + '" title="启动">' +
                                 '<i class="text-success mdi mdi-replay font-20"></i></a>' +
-                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + url + '" data-id="' + row.id + '" title="删除">' +
+                                '<a href="javascript:void(0);" onclick="DP.editLink(' + index + ', this)" data-modal-title="修改任务" title="修改">' +
+                                '<i class="mdi mdi-check text-info font-20"></i> </a>' +
+                                '<a href="javascript:void(0);" onclick="DP.delLink(this)"  data-url="' + url + '" data-id="' + value.id + '" title="删除">' +
                                 '<i class="text-danger mdi mdi-close font-20"></i></a>';
                         }
                     }
@@ -235,7 +250,7 @@
 
                 $.ajax({
                     type: 'post',
-                    url: /*[[@{/deploy/normal/}]]*/,
+                    url: /*[[@{/deploy/cron/}]]*/,
                     data: formData,
                     processData: false,
                     contentType: false,

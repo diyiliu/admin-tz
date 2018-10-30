@@ -93,7 +93,7 @@ public class ClusterController {
         nodeStatusJpa.save(status);
 
         // SCP 远程拷贝
-        if (devNode.getCheckOn() == 1) {
+        if (devNode.getCheckOn() != null &&devNode.getCheckOn() == 1) {
             remoteCopy(devNode);
         }
 
@@ -115,7 +115,7 @@ public class ClusterController {
             return 0;
         }
         // SCP 远程拷贝
-        if (temp.getCheckOn() == 1) {
+        if (devNode.getCheckOn() != null &&devNode.getCheckOn() == 1) {
             remoteCopy(temp);
         } else {
             RemoteUtil.run(temp, temp.getPath(), null, 0);
